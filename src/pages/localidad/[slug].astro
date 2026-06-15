@@ -1,6 +1,7 @@
 ---
 import { locations } from "../../data/locations";
 import "../../styles/global.css";
+import "../../styles/location.css";
 
 export function getStaticPaths() {
   return locations.map((location) => ({
@@ -26,8 +27,8 @@ const { location } = Astro.props;
     />
   </head>
   <body>
-    <main class="app-shell" data-page="location" data-location={JSON.stringify(location)}>
-      <header class="site-header">
+    <main class="app-shell location-shell" data-page="location" data-location={JSON.stringify(location)}>
+      <header class="site-header location-header">
         <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
           <span class="brand__mark">ET</span>
           <span>
@@ -57,98 +58,133 @@ const { location } = Astro.props;
         <nav class="menu-panel is-hidden" aria-label="Menu principal" data-menu-panel>
           <a href="/">Inicio</a>
           <a href="/">Buscar localidad</a>
+          <a href="/rankings/">Rankings</a>
+          <a href="/lluvia/">Lluvia</a>
+          <a href="/calidad-del-aire/">Calidad del aire</a>
           <a href="/mapas/extremadura/">Mapa Extremadura</a>
           <a href="/mapas/espana/">Mapa Espana</a>
-          <a href="/mapas/europa/">Mapa Europa</a>
           <a href="/localidad/badajoz/">Badajoz</a>
           <a href="/localidad/caceres/">Caceres</a>
         </nav>
       </header>
 
-      <div class="desktop-grid">
-        <section class="hero-weather" aria-labelledby="current-title">
-          <div class="hero-weather__main">
-            <div class="hero-weather__summary">
-              <p class="eyebrow">{location.province}</p>
-              <h2 id="current-title">Ahora</h2>
-              <p class="meta" data-current-description>Cargando prevision de Open-Meteo</p>
-            </div>
-            <div class="hero-weather__temp" data-current-temp>--</div>
-            <div class="quick-card__details">
-              <span data-feels-like>Sensacion --</span>
-              <span data-max-min>Max -- / Min --</span>
-            </div>
+      <section class="location-hero" aria-labelledby="location-title">
+        <div class="location-hero__copy">
+          <div class="location-hero__kicker">
+            <span class="eyebrow">{location.province}</span>
+            <span class="location-live-badge" data-updated>Actualizando</span>
           </div>
-          <img
-            class="weather-icon weather-icon--lg"
-            src="/weather/open-meteo-cloudy.svg"
-            alt=""
-            data-current-icon
-          />
-        </section>
+          <h1 id="location-title">El tiempo en {location.name}</h1>
+          <p class="location-hero__lead" data-summary-line>
+            Cargando prevision municipal con temperatura, lluvia, viento y proximos dias.
+          </p>
+          <div class="location-hero__chips" aria-label="Accesos rapidos de la localidad">
+            <a class="chip" href="/mapas/extremadura/">Ver en mapa</a>
+            <a class="chip" href="/lluvia/">Lluvia regional</a>
+            <a class="chip" href="/calidad-del-aire/">Aire y polen</a>
+          </div>
+        </div>
 
-        <section class="section" aria-labelledby="metrics-title">
-          <div class="section__header">
+        <div class="location-now-card" aria-labelledby="current-title">
+          <div class="location-now-card__top">
             <div>
-              <h2 class="section__title" id="metrics-title">Metricas clave</h2>
-              <p class="meta">Datos actuales y maximos diarios disponibles</p>
+              <p class="eyebrow">Ahora mismo</p>
+              <h2 id="current-title" data-current-description>Cargando prevision</h2>
             </div>
+            <img
+              class="weather-icon weather-icon--lg location-now-card__icon"
+              src="/weather/open-meteo-cloudy.svg"
+              alt=""
+              data-current-icon
+            />
           </div>
-          <div class="metrics-grid" data-metrics>
-            <article class="metric">
-              <span class="label">Lluvia</span>
-              <strong data-metric="precipitation">--</strong>
-            </article>
-            <article class="metric">
-              <span class="label">Prob. lluvia</span>
-              <strong data-metric="rainProbability">--</strong>
-            </article>
-            <article class="metric">
-              <span class="label">Viento</span>
-              <strong data-metric="wind">--</strong>
-            </article>
-            <article class="metric">
-              <span class="label">Rachas</span>
-              <strong data-metric="gusts">--</strong>
-            </article>
-            <article class="metric">
-              <span class="label">Humedad</span>
-              <strong data-metric="humidity">--</strong>
-            </article>
-            <article class="metric">
-              <span class="label">Nubes</span>
-              <strong data-metric="clouds">--</strong>
-            </article>
-            <article class="metric">
-              <span class="label">UV max</span>
-              <strong data-metric="uv">--</strong>
-            </article>
-            <article class="metric">
-              <span class="label">Direccion</span>
-              <strong data-metric="direction">--</strong>
-              <span class="compass" role="img" aria-label="Direccion del viento" data-compass>
-                <span class="compass__mark compass__mark--n">N</span>
-                <span class="compass__mark compass__mark--e">E</span>
-                <span class="compass__mark compass__mark--s">S</span>
-                <span class="compass__mark compass__mark--w">O</span>
-                <span class="compass__needle"></span>
-              </span>
-            </article>
+          <div class="location-now-card__temperature" data-current-temp>--</div>
+          <div class="location-now-card__facts">
+            <span data-feels-like>Sensacion --</span>
+            <span data-max-min>Max -- / Min --</span>
+            <span data-daylight-note>Hora peninsular</span>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
-      <section class="section" aria-labelledby="hours-title">
-        <div class="section__header">
+      <section class="location-section location-section--metrics" aria-labelledby="metrics-title">
+        <div class="section__header location-section__header">
           <div>
+            <p class="eyebrow">Panel vivo</p>
+            <h2 class="section__title" id="metrics-title">Metricas clave</h2>
+            <p class="meta">Datos actuales y maximos diarios disponibles</p>
+          </div>
+        </div>
+        <div class="metrics-grid location-metrics" data-metrics>
+          <article class="metric location-metric location-metric--rain">
+            <span class="location-metric__icon" aria-hidden="true">☔</span>
+            <span class="label">Lluvia ahora</span>
+            <strong data-metric="precipitation">--</strong>
+            <span class="meta">Acumulado actual</span>
+          </article>
+          <article class="metric location-metric location-metric--rain">
+            <span class="location-metric__icon" aria-hidden="true">%</span>
+            <span class="label">Prob. lluvia</span>
+            <strong data-metric="rainProbability">--</strong>
+            <span class="meta">Maximo del dia</span>
+          </article>
+          <article class="metric location-metric location-metric--wind">
+            <span class="location-metric__icon" aria-hidden="true">↗</span>
+            <span class="label">Viento</span>
+            <strong data-metric="wind">--</strong>
+            <span class="meta">Velocidad actual</span>
+          </article>
+          <article class="metric location-metric location-metric--wind">
+            <span class="location-metric__icon" aria-hidden="true">≈</span>
+            <span class="label">Rachas</span>
+            <strong data-metric="gusts">--</strong>
+            <span class="meta">Ahora mismo</span>
+          </article>
+          <article class="metric location-metric location-metric--humidity">
+            <span class="location-metric__icon" aria-hidden="true">●</span>
+            <span class="label">Humedad</span>
+            <strong data-metric="humidity">--</strong>
+            <span class="meta">Ambiente actual</span>
+          </article>
+          <article class="metric location-metric location-metric--clouds">
+            <span class="location-metric__icon" aria-hidden="true">☁</span>
+            <span class="label">Nubes</span>
+            <strong data-metric="clouds">--</strong>
+            <span class="meta">Cobertura</span>
+          </article>
+          <article class="metric location-metric location-metric--uv">
+            <span class="location-metric__icon" aria-hidden="true">UV</span>
+            <span class="label">UV max</span>
+            <strong data-metric="uv">--</strong>
+            <span class="meta">Pico del dia</span>
+          </article>
+          <article class="metric location-metric location-metric--compass">
+            <span class="label">Direccion</span>
+            <strong data-metric="direction">--</strong>
+            <span class="compass" role="img" aria-label="Direccion del viento" data-compass>
+              <span class="compass__mark compass__mark--n">N</span>
+              <span class="compass__mark compass__mark--e">E</span>
+              <span class="compass__mark compass__mark--s">S</span>
+              <span class="compass__mark compass__mark--w">O</span>
+              <span class="compass__needle"></span>
+            </span>
+          </article>
+        </div>
+      </section>
+
+      <section class="location-section" aria-labelledby="hours-title">
+        <div class="section__header location-section__header">
+          <div>
+            <p class="eyebrow">Timeline</p>
             <h2 class="section__title" id="hours-title">Proximas horas</h2>
             <p class="meta" data-hourly-label>Temperatura, lluvia y viento hora a hora</p>
           </div>
+          <a class="chip" href="/mapas/extremadura/">Animacion regional</a>
         </div>
-        <div class="scroll-strip" data-hourly>
+        <div class="scroll-strip location-hour-strip" data-hourly>
           {
             Array.from({ length: 8 }).map(() => (
-              <article class="hour-card">
+              <article class="hour-card location-hour-card">
                 <img class="weather-icon weather-icon--sm" src="/weather/open-meteo-cloudy.svg" alt="" />
                 <span class="label">--</span>
                 <strong>--</strong>
@@ -159,17 +195,18 @@ const { location } = Astro.props;
         </div>
       </section>
 
-      <section class="section" aria-labelledby="days-title">
-        <div class="section__header">
+      <section class="location-section" aria-labelledby="days-title">
+        <div class="section__header location-section__header">
           <div>
+            <p class="eyebrow">Semana</p>
             <h2 class="section__title" id="days-title">Proximos dias</h2>
             <p class="meta">Maximas, minimas, lluvia, viento y UV</p>
           </div>
         </div>
-        <div class="panel list" data-daily>
+        <div class="panel list location-days" data-daily>
           {
             Array.from({ length: 7 }).map(() => (
-              <article class="day-accordion">
+              <article class="day-accordion location-day">
                 <button class="weather-row day-row" type="button">
                   <img class="weather-icon weather-icon--sm" src="/weather/open-meteo-cloudy.svg" alt="" />
                   <span>
@@ -189,6 +226,38 @@ const { location } = Astro.props;
           }
         </div>
       </section>
+
+      <section class="location-section location-links" aria-labelledby="related-title">
+        <div class="section__header location-section__header">
+          <div>
+            <p class="eyebrow">Mas datos</p>
+            <h2 class="section__title" id="related-title">Tambien puedes consultar</h2>
+          </div>
+        </div>
+        <div class="quick-grid location-related-grid">
+          <a class="quick-card location-related-card" href="/fin-de-semana/">
+            <span class="brand__mark">FS</span>
+            <span class="quick-card__main">
+              <span class="quick-card__title">Fin de semana</span>
+              <span class="meta">Resumen regional para planificar</span>
+            </span>
+          </a>
+          <a class="quick-card location-related-card" href="/polen/">
+            <span class="brand__mark">PO</span>
+            <span class="quick-card__main">
+              <span class="quick-card__title">Polen</span>
+              <span class="meta">Gramineas, olivo y alergenos</span>
+            </span>
+          </a>
+          <a class="quick-card location-related-card" href="/campo/">
+            <span class="brand__mark">CA</span>
+            <span class="quick-card__main">
+              <span class="quick-card__title">Campo</span>
+              <span class="meta">Riego, suelo, heladas y radiacion</span>
+            </span>
+          </a>
+        </div>
+      </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Navegacion principal">
@@ -204,8 +273,9 @@ const { location } = Astro.props;
       </div>
       <nav aria-label="Enlaces de pie">
         <a href="/">Inicio</a>
+        <a href="/rankings/">Rankings</a>
+        <a href="/mapas/extremadura/">Mapa Extremadura</a>
         <a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer">Weather API</a>
-        <a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noreferrer">Geocoding</a>
       </nav>
     </footer>
 
@@ -264,6 +334,7 @@ const { location } = Astro.props;
         } catch (error) {
           const updated = document.querySelector("[data-updated]");
           if (updated) updated.textContent = "No se pudo cargar Open-Meteo";
+          setText("[data-summary-line]", "No se pudo cargar la prevision. Revisa la conexion y vuelve a intentarlo.");
         }
       }
 
@@ -271,6 +342,8 @@ const { location } = Astro.props;
         setText("[data-updated]", formatUpdatedAt(forecast.updatedAt));
         setText("[data-current-temp]", formatTemperature(forecast.current.temperature));
         setText("[data-current-description]", forecast.current.description);
+        setText("[data-summary-line]", buildSummary(forecast));
+        setText("[data-daylight-note]", daylightLabel(forecast.updatedAt));
         const currentIcon = document.querySelector("[data-current-icon]");
         currentIcon?.setAttribute("src", forecast.current.image);
         currentIcon?.setAttribute("alt", forecast.current.description);
@@ -302,13 +375,17 @@ const { location } = Astro.props;
         container.innerHTML = points
           .map(
             (point) => `
-              <article class="hour-card">
-                <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
-                <span class="label">${formatHour(point.time)}</span>
+              <article class="hour-card location-hour-card">
+                <div class="location-hour-card__head">
+                  <span class="label">${formatHour(point.time)}</span>
+                  <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
+                </div>
                 <strong>${formatTemperature(point.temperature)}</strong>
                 <p class="meta">${point.description}</p>
-                <p class="meta">Lluvia ${formatPercent(point.rainProbability)}</p>
-                <p class="meta">Viento ${formatSpeed(point.windSpeed)}</p>
+                <div class="location-hour-card__metrics">
+                  <span>Lluvia ${formatPercent(point.rainProbability)}</span>
+                  <span>Viento ${formatSpeed(point.windSpeed)}</span>
+                </div>
               </article>
             `,
           )
@@ -322,17 +399,17 @@ const { location } = Astro.props;
         container.innerHTML = points
           .map(
             (point, index) => `
-              <article class="day-accordion" data-day-item="${point.date}">
-                <button class="weather-row day-row" type="button" data-day="${point.date}" aria-expanded="false" aria-controls="hours-${point.date}">
-                  <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
-                  <span>
+              <article class="day-accordion location-day" data-day-item="${point.date}">
+                <button class="weather-row day-row location-day-row" type="button" data-day="${point.date}" aria-expanded="false" aria-controls="hours-${point.date}">
+                  <span class="location-day-row__date">
                     <span class="row__title">${index === 0 ? "Hoy" : formatDay(point.date, true)}</span>
                     <span class="row__details">
                       <span>${point.description}</span>
                       <span>UV ${formatUv(point.uvMax)}</span>
                     </span>
                   </span>
-                  <span class="row__metrics">
+                  <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
+                  <span class="row__metrics location-day-row__metrics">
                     <span>${formatTemperature(point.max)} / ${formatTemperature(point.min)}</span>
                     <span>${formatPercent(point.precipitationProbability)}</span>
                     <span>${formatSpeed(point.windMax)}</span>
@@ -367,7 +444,7 @@ const { location } = Astro.props;
           .filter((point) => point.time.startsWith(date))
           .map(
             (point) => `
-              <article class="day-hour">
+              <article class="day-hour location-day-hour">
                 <span class="day-hour__time">${formatHour(point.time)}</span>
                 <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
                 <strong>${formatTemperature(point.temperature)}</strong>
@@ -386,6 +463,21 @@ const { location } = Astro.props;
           .slice(0, 12);
       }
 
+      function buildSummary(forecast) {
+        return `${forecast.current.description} en ${forecast.name}, con ${formatTemperature(forecast.current.temperature)} ahora, sensacion de ${formatTemperature(forecast.current.apparentTemperature)}, lluvia maxima del dia ${formatPercent(forecast.today.precipitationProbability)} y viento de ${formatSpeed(forecast.current.windSpeed)}.`;
+      }
+
+      function daylightLabel(value) {
+        if (!value) return "Hora peninsular";
+        const hour = Number(new Intl.DateTimeFormat("es-ES", {
+          hour: "2-digit",
+          hour12: false,
+          timeZone: "Europe/Madrid",
+        }).format(new Date(value)));
+        if (!Number.isFinite(hour)) return "Hora peninsular";
+        return hour >= 7 && hour < 21 ? "De dia" : "De noche";
+      }
+
       function updateCompass(degrees) {
         const compass = document.querySelector("[data-compass]");
         const needle = compass?.querySelector(".compass__needle");
@@ -395,8 +487,9 @@ const { location } = Astro.props;
       }
 
       function setText(selector, value) {
-        const element = document.querySelector(selector);
-        if (element) element.textContent = value;
+        document.querySelectorAll(selector).forEach((element) => {
+          element.textContent = value;
+        });
       }
 
       function getFavorites() {
