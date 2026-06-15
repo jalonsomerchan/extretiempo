@@ -57,12 +57,16 @@
 }
 
 .location-hero h1 {
-  max-width: 10ch;
+  max-width: min(100%, 16ch);
   margin: 0;
-  font-size: clamp(2.7rem, 11vw, 7rem);
-  font-weight: 940;
-  line-height: 0.86;
-  letter-spacing: -0.09em;
+  font-size: clamp(2.25rem, 6.4vw, 5.35rem);
+  font-weight: 920;
+  line-height: 0.95;
+  letter-spacing: -0.065em;
+  text-wrap: balance;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 .location-hero__lead {
@@ -379,6 +383,9 @@
 
   .location-hero h1 {
     max-width: 100%;
+    font-size: clamp(2.25rem, 12.5vw, 4.15rem);
+    line-height: 0.96;
+    letter-spacing: -0.06em;
   }
 
   .location-now-card__temperature {
@@ -414,5 +421,12 @@
 
   .location-day-hour span:last-child {
     grid-column: 3 / -1;
+  }
+}
+
+@media (max-width: 430px) {
+  .location-hero h1 {
+    font-size: clamp(2.05rem, 11.5vw, 3.1rem);
+    letter-spacing: -0.045em;
   }
 }
