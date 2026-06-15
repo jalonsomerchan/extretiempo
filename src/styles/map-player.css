@@ -125,3 +125,46 @@
 .map-stage.is-night .weather-marker__temp--hot {
   color: #ff9b7a;
 }
+
+/* La noche solo afecta al mapa base: marcadores, popups, controles y reloj quedan por encima. */
+.map-stage::before,
+.map-stage::after {
+  z-index: 420;
+}
+
+.map-stage.is-night .leaflet-container {
+  filter: none !important;
+}
+
+.map-stage.is-night .leaflet-tile-pane {
+  filter: saturate(0.72) brightness(0.58) contrast(1.08);
+}
+
+.weather-map .leaflet-overlay-pane {
+  z-index: 450;
+}
+
+.weather-map .leaflet-shadow-pane {
+  z-index: 500;
+}
+
+.weather-map .leaflet-marker-pane {
+  z-index: 650;
+}
+
+.weather-map .leaflet-tooltip-pane {
+  z-index: 660;
+}
+
+.weather-map .leaflet-popup-pane {
+  z-index: 700;
+}
+
+.weather-map .leaflet-control-container {
+  position: relative;
+  z-index: 720;
+}
+
+.map-clock {
+  z-index: 730;
+}
