@@ -1,0 +1,154 @@
+---
+import "../styles/global.css";
+import "../styles/static-page.css";
+
+const siteUrl = "https://extretiempo.alon.one";
+const title = "Acerca de ExtreTiempo | Tiempo local en Extremadura";
+const description = "Conoce ExtreTiempo, una herramienta meteorológica regional para consultar el tiempo por municipios de Extremadura con datos abiertos y lectura rápida.";
+const canonical = `${siteUrl}/acerca-de/`;
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      name: title,
+      description,
+      url: canonical,
+      inLanguage: "es-ES",
+      isPartOf: { "@type": "WebSite", name: "ExtreTiempo", url: siteUrl },
+      about: [{ "@type": "Place", name: "Extremadura" }, { "@type": "Thing", name: "meteorología local" }],
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Acerca de", item: canonical },
+      ],
+    },
+  ],
+};
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExtreTiempo" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <main class="static-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Proyecto regional</span>
+            <span class="brand__name">ExtreTiempo</span>
+            <span class="meta">Tiempo en Extremadura</span>
+          </span>
+        </a>
+        <nav class="site-header__actions" aria-label="Enlaces principales">
+          <a class="link-button" href="/municipios/">Municipios</a>
+          <a class="link-button" href="/contacto/">Contacto</a>
+        </nav>
+      </header>
+
+      <section class="static-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Acerca del proyecto</p>
+          <h1 id="page-title">Una guía del tiempo pensada para Extremadura</h1>
+          <p>
+            ExtreTiempo nace para consultar la previsión meteorológica local de forma rápida, clara y centrada en municipios extremeños: temperatura, lluvia, viento, UV, polen, calidad del aire y mapas horarios.
+          </p>
+        </div>
+        <aside class="static-hero__aside" aria-label="Resumen">
+          <div class="static-note">
+            <strong>Enfoque local</strong>
+            <span>Prioriza Cáceres, Badajoz y localidades de la región frente a una experiencia meteorológica genérica.</span>
+          </div>
+          <div class="static-note">
+            <strong>Datos abiertos</strong>
+            <span>La previsión se apoya principalmente en servicios públicos de Open-Meteo.</span>
+          </div>
+        </aside>
+      </section>
+
+      <div class="static-layout">
+        <article class="static-content">
+          <section class="static-card">
+            <h2>Qué intenta resolver</h2>
+            <p>
+              Muchas webs meteorológicas son amplias, pesadas o poco cómodas para revisar lo que ocurre cerca. ExtreTiempo organiza los datos por localidad, provincia y páginas temáticas para responder preguntas concretas: dónde lloverá, qué zonas tendrán más calor, cómo irá el viento o qué previsión hay para el fin de semana.
+            </p>
+            <ul class="static-list">
+              <li>Consulta rápida del tiempo actual y próximos días por municipio.</li>
+              <li>Mapas regionales para comparar localidades de un vistazo.</li>
+              <li>Páginas específicas para lluvia, calor, heladas, viento, polen, aire, campo y ríos.</li>
+            </ul>
+          </section>
+
+          <section class="static-card">
+            <h2>Cómo está organizada la web</h2>
+            <div class="static-grid">
+              <div class="static-mini-card">
+                <strong>Localidades</strong>
+                <span>Fichas con previsión por horas, resumen diario, temperatura, viento, lluvia y datos útiles.</span>
+              </div>
+              <div class="static-mini-card">
+                <strong>Mapas</strong>
+                <span>Vista animada para comparar temperatura, lluvia y viento en Extremadura, provincias y otras regiones.</span>
+              </div>
+              <div class="static-mini-card">
+                <strong>Páginas temáticas</strong>
+                <span>Rankings y resúmenes preparados para búsquedas meteorológicas habituales.</span>
+              </div>
+              <div class="static-mini-card">
+                <strong>Información contextual</strong>
+                <span>Explicaciones sobre fuentes, límites de los datos y criterios usados para presentar la previsión.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="static-card">
+            <h2>Importante</h2>
+            <p>
+              ExtreTiempo no sustituye los avisos oficiales ni debe usarse para decisiones de emergencia. La información se presenta como una ayuda práctica y orientativa para el día a día.
+            </p>
+          </section>
+        </article>
+
+        <nav class="static-aside" aria-label="Páginas informativas">
+          <a href="/acerca-de/" aria-current="page">Acerca de</a>
+          <a href="/mas-informacion/">Más información</a>
+          <a href="/contacto/">Contacto</a>
+          <a href="/privacidad/">Privacidad</a>
+          <a href="/aviso-legal/">Aviso legal</a>
+        </nav>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Guía meteorológica regional para Extremadura con previsión municipal y mapas horarios.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/municipios/">Municipios</a>
+        <a href="/mas-informacion/">Más información</a>
+        <a href="/contacto/">Contacto</a>
+      </nav>
+    </footer>
+  </body>
+</html>
