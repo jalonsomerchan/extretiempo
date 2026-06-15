@@ -75,43 +75,63 @@ const { region } = Astro.props;
         </div>
       </section>
 
-      <section class="map-panel" aria-label={`Mapa meteorologico de ${region.title}`} data-map-panel>
-        <div class="map-toolbar map-toolbar--player">
-          <button class="play-button" type="button" data-play aria-pressed="false" disabled>
-            <span aria-hidden="true" data-play-icon>▶</span>
-            <span data-play-label>Play</span>
-          </button>
-          <div class="map-timeline">
-            <div class="map-time-row">
-              <strong data-time-label>Ahora</strong>
-              <span class="map-day-badge" data-daylight-label>Día</span>
-            </div>
-            <label class="timeline-control">
-              <span class="sr-only">Avanzar la prevision horaria del mapa</span>
-              <input
-                class="timeline-range"
-                type="range"
-                min="0"
-                max="0"
-                value="0"
-                step="0.01"
-                data-timeline
-                disabled
-              />
-            </label>
-            <p class="meta">
-              <span data-progress-label>Esperando datos</span>
-              <span aria-hidden="true"> · </span>
-              <span>arrastra la barra para avanzar manualmente</span>
-            </p>
-          </div>
-        </div>
+      <section class="map-panel map-panel--video" aria-label={`Mapa meteorologico de ${region.title}`} data-map-panel>
         <div class="map-stage is-day" data-map-stage>
           <div id="weather-map" class="weather-map"></div>
           <div class="map-clock" aria-live="polite">
             <span data-clock-day>Hoy</span>
             <strong data-clock-time>Ahora</strong>
             <span data-clock-summary>Prevision horaria</span>
+          </div>
+        </div>
+
+        <div class="map-toolbar map-toolbar--player" role="group" aria-label="Controles del reproductor del mapa">
+          <div class="map-player-main">
+            <button class="play-button" type="button" data-play aria-pressed="false" disabled>
+              <span aria-hidden="true" data-play-icon>▶</span>
+              <span data-play-label>Play</span>
+            </button>
+            <div class="map-timeline">
+              <div class="map-time-row">
+                <strong data-time-label>Ahora</strong>
+                <span class="map-day-badge" data-daylight-label>Día</span>
+              </div>
+              <label class="timeline-control">
+                <span class="sr-only">Avanzar la prevision horaria del mapa</span>
+                <input
+                  class="timeline-range"
+                  type="range"
+                  min="0"
+                  max="0"
+                  value="0"
+                  step="0.01"
+                  data-timeline
+                  disabled
+                />
+              </label>
+              <p class="meta">
+                <span data-progress-label>Esperando datos</span>
+                <span aria-hidden="true"> · </span>
+                <span>arrastra la barra para avanzar manualmente</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="map-player-side">
+            <div class="speed-control" aria-label="Velocidad de reproduccion">
+              <span>Velocidad</span>
+              <div class="speed-buttons">
+                <button type="button" data-speed="0.5" aria-pressed="false">0.5x</button>
+                <button type="button" data-speed="1" aria-pressed="true">1x</button>
+                <button type="button" data-speed="2" aria-pressed="false">2x</button>
+                <button type="button" data-speed="4" aria-pressed="false">4x</button>
+              </div>
+            </div>
+            <div class="map-player-clock" aria-live="polite">
+              <span>Fecha / hora</span>
+              <strong data-side-date>Hoy</strong>
+              <span data-side-time>Ahora</span>
+            </div>
           </div>
         </div>
       </section>
@@ -173,6 +193,9 @@ const { region } = Astro.props;
       const clockDay = document.querySelector("[data-clock-day]");
       const clockTime = document.querySelector("[data-clock-time]");
       const clockSummary = document.querySelector("[data-clock-summary]");
+      const sideDate = document.querySelector("[data-side-date]");
+      const sideTime = document.querySelector("[data-side-time]");
+      const speedButtons = Array.from(document.querySelectorAll("[data-speed]"));
       const list = document.querySelector("[data-map-list]");
       const menuButton = document.querySelector("[data-menu-button]");
       const menuPanel = document.querySelector("[data-menu-panel]");
@@ -185,6 +208,7 @@ const { region } = Astro.props;
       let frameCount = 0;
       let places = [];
       let cachePruned = false;
+      let playerSpeed = 1;
 
       menuButton?.addEventListener("click", () => {
         const isOpen = menuButton.getAttribute("aria-expanded") === "true";
@@ -194,6 +218,13 @@ const { region } = Astro.props;
 
       playButton?.addEventListener("click", () => {
         setPlaying(!playing);
+      });
+
+      speedButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const speed = Number(button.getAttribute("data-speed"));
+          setPlayerSpeed(Number.isFinite(speed) ? speed : 1);
+        });
       });
 
       timeline?.addEventListener("input", (event) => {
@@ -209,6 +240,7 @@ const { region } = Astro.props;
         }
       });
 
+      setPlayerSpeed(playerSpeed);
       init();
 
       async function init() {
@@ -359,7 +391,11 @@ const { region } = Astro.props;
             fresh: Number.isFinite(expiresAt) && expiresAt > Date.now(),
           };
         } catch (error) {
-          localStorage.removeItem(cacheKey);
+          try {
+            localStorage.removeItem(cacheKey);
+          } catch (removeError) {
+            // localStorage puede estar bloqueado.
+          }
           return null;
         }
       }
@@ -452,7 +488,7 @@ const { region } = Astro.props;
         const elapsed = timestamp - lastAnimationTime;
         lastAnimationTime = timestamp;
         const maxFrame = Math.max(frameCount - 1, 0);
-        const nextPosition = framePosition + elapsed / PLAYER_HOUR_MS;
+        const nextPosition = framePosition + (elapsed * playerSpeed) / PLAYER_HOUR_MS;
 
         updateFrame(nextPosition > maxFrame ? 0 : nextPosition);
         animationId = window.requestAnimationFrame(animate);
@@ -502,6 +538,8 @@ const { region } = Astro.props;
             ? `${sample.description} · ${formatMapTemperature(sample.temperature)}`
             : "Prevision horaria";
         }
+        if (sideDate) sideDate.textContent = sample ? capitalize(formatPlayerDate(sample.time)) : "Hoy";
+        if (sideTime) sideTime.textContent = sample ? `${hourText} · ${night ? "Noche" : "Día"}` : "Ahora";
         stage?.classList.toggle("is-night", night);
         stage?.classList.toggle("is-day", !night);
       }
@@ -716,9 +754,18 @@ const { region } = Astro.props;
         }
       }
 
+      function setPlayerSpeed(nextSpeed) {
+        playerSpeed = nextSpeed;
+        speedButtons.forEach((button) => {
+          const selected = Number(button.getAttribute("data-speed")) === nextSpeed;
+          button.setAttribute("aria-pressed", String(selected));
+        });
+      }
+
       function setControlsDisabled(disabled) {
         playButton?.toggleAttribute("disabled", disabled);
         timeline?.toggleAttribute("disabled", disabled);
+        speedButtons.forEach((button) => button.toggleAttribute("disabled", disabled));
       }
 
       function clearPlaces() {
@@ -753,6 +800,16 @@ const { region } = Astro.props;
           month: "short",
           hour: "2-digit",
           minute: "2-digit",
+          timeZone: "Europe/Madrid",
+        }).format(new Date(value));
+      }
+
+      function formatPlayerDate(value) {
+        if (!value) return "Hoy";
+        return new Intl.DateTimeFormat("es-ES", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
           timeZone: "Europe/Madrid",
         }).format(new Date(value));
       }
