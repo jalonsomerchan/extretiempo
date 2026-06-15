@@ -66,7 +66,7 @@ type OpenMeteoResponse = {
 
 type WeatherIconVariant = "day" | "night";
 
-const openWeatherIconBaseUrl = "https://openweathermap.org/payload/api/media/file";
+const openWeatherIconBaseUrl = "https://openweathermap.org/img/wn";
 
 export const forecastFields = {
   current: [
@@ -187,7 +187,7 @@ export function describeWeatherCode(code: number | null) {
 
 export function weatherImageForCode(code: number | null, variant: WeatherIconVariant = "day") {
   const icon = openWeatherIconForCode(code, variant);
-  return `${openWeatherIconBaseUrl}/${icon}@2x.png`;
+  return `${openWeatherIconBaseUrl}/${icon}.png`;
 }
 
 export function openWeatherIconForCode(code: number | null, variant: WeatherIconVariant = "day") {
