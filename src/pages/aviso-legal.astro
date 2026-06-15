@@ -1,0 +1,139 @@
+---
+import "../styles/global.css";
+import "../styles/static-page.css";
+
+const siteUrl = "https://extretiempo.alon.one";
+const title = "Aviso legal | ExtreTiempo";
+const description = "Aviso legal de ExtreTiempo: uso orientativo de la información meteorológica, fuentes externas y responsabilidad sobre los datos mostrados.";
+const canonical = `${siteUrl}/aviso-legal/`;
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      name: title,
+      description,
+      url: canonical,
+      inLanguage: "es-ES",
+      isPartOf: { "@type": "WebSite", name: "ExtreTiempo", url: siteUrl },
+      about: { "@type": "Thing", name: "aviso legal" },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Aviso legal", item: canonical },
+      ],
+    },
+  ],
+};
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExtreTiempo" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <main class="static-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Aviso legal</span>
+            <span class="brand__name">ExtreTiempo</span>
+            <span class="meta">Uso responsable</span>
+          </span>
+        </a>
+        <nav class="site-header__actions" aria-label="Enlaces principales">
+          <a class="link-button" href="/privacidad/">Privacidad</a>
+          <a class="link-button" href="/contacto/">Contacto</a>
+        </nav>
+      </header>
+
+      <section class="static-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Aviso legal</p>
+          <h1 id="page-title">Información meteorológica orientativa</h1>
+          <p>
+            ExtreTiempo presenta datos meteorológicos para consulta general. La información puede contener errores, retrasos, cambios de modelo o diferencias locales.
+          </p>
+        </div>
+        <aside class="static-hero__aside" aria-label="Resumen">
+          <div class="static-note">
+            <strong>No oficial</strong>
+            <span>La web no sustituye avisos oficiales, protección civil ni servicios de emergencia.</span>
+          </div>
+          <div class="static-note">
+            <strong>Uso prudente</strong>
+            <span>Contrasta la información antes de tomar decisiones sensibles.</span>
+          </div>
+        </aside>
+      </section>
+
+      <div class="static-layout">
+        <article class="static-content">
+          <section class="static-card">
+            <h2>Uso de la información</h2>
+            <p>
+              La previsión meteorológica mostrada en ExtreTiempo debe entenderse como información orientativa. Los datos pueden cambiar con nuevas actualizaciones y pueden no reflejar condiciones concretas en una ubicación exacta.
+            </p>
+            <ul class="static-list">
+              <li>No utilices esta web como única fuente para emergencias o actividades de riesgo.</li>
+              <li>Consulta siempre avisos oficiales en situaciones de tormentas, viento fuerte, calor extremo, inundaciones o nieve.</li>
+              <li>Los mapas y rankings sirven para orientación visual, no para certificación meteorológica.</li>
+            </ul>
+          </section>
+
+          <section class="static-card">
+            <h2>Fuentes y disponibilidad</h2>
+            <p>
+              ExtreTiempo depende de APIs y servicios externos para obtener datos. Si una fuente falla, cambia su formato o retrasa la actualización, algunas partes del sitio pueden no mostrarse correctamente.
+            </p>
+          </section>
+
+          <section class="static-card">
+            <h2>Contenido y enlaces</h2>
+            <p>
+              El contenido del sitio puede actualizarse para mejorar la claridad, corregir errores o añadir nuevas páginas. Los enlaces externos se ofrecen como referencia y no implican control sobre el contenido de terceros.
+            </p>
+          </section>
+        </article>
+
+        <nav class="static-aside" aria-label="Páginas informativas">
+          <a href="/acerca-de/">Acerca de</a>
+          <a href="/mas-informacion/">Más información</a>
+          <a href="/contacto/">Contacto</a>
+          <a href="/privacidad/">Privacidad</a>
+          <a href="/aviso-legal/" aria-current="page">Aviso legal</a>
+        </nav>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Aviso legal sobre el uso orientativo de la información meteorológica.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/mas-informacion/">Más información</a>
+        <a href="/privacidad/">Privacidad</a>
+        <a href="/contacto/">Contacto</a>
+      </nav>
+    </footer>
+  </body>
+</html>
