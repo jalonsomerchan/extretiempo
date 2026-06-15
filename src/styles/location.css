@@ -39,6 +39,7 @@
 
 .location-hero__copy {
   display: grid;
+  min-width: 0;
   align-content: end;
   gap: 18px;
 }
@@ -57,12 +58,13 @@
 }
 
 .location-hero h1 {
-  max-width: min(100%, 16ch);
+  width: min(100%, 780px);
+  max-width: none;
   margin: 0;
-  font-size: clamp(2.25rem, 6.4vw, 5.35rem);
+  font-size: clamp(2.35rem, 5.2vw, 4.85rem);
   font-weight: 920;
-  line-height: 0.95;
-  letter-spacing: -0.065em;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
   text-wrap: balance;
   overflow-wrap: normal;
   word-break: normal;
@@ -356,7 +358,7 @@
 
 @media (min-width: 760px) {
   .location-hero {
-    grid-template-columns: minmax(0, 1.12fr) minmax(330px, 0.62fr);
+    grid-template-columns: minmax(0, 1.48fr) minmax(300px, 0.52fr);
     align-items: stretch;
   }
 
@@ -373,6 +375,11 @@
   .location-now-card {
     min-height: 100%;
   }
+
+  .location-hero h1 {
+    width: min(100%, 840px);
+    font-size: clamp(3.65rem, 4.7vw, 5.1rem);
+  }
 }
 
 @media (max-width: 700px) {
@@ -382,6 +389,7 @@
   }
 
   .location-hero h1 {
+    width: 100%;
     max-width: 100%;
     font-size: clamp(2.25rem, 12.5vw, 4.15rem);
     line-height: 0.96;
