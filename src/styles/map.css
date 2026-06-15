@@ -1,0 +1,349 @@
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.map-toolbar--player {
+  align-items: stretch;
+  gap: 14px;
+  background:
+    linear-gradient(135deg, rgba(47, 118, 88, 0.1), transparent 46%),
+    rgba(255, 253, 248, 0.92);
+}
+
+.map-toolbar--player .play-button {
+  flex: 0 0 auto;
+  min-width: 112px;
+  justify-content: center;
+  box-shadow: 0 10px 22px rgba(47, 118, 88, 0.16);
+}
+
+.map-toolbar--player .play-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.map-timeline {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 7px;
+}
+
+.map-time-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.map-time-row strong {
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  line-height: 1.05;
+}
+
+.map-day-badge {
+  flex: 0 0 auto;
+  border: 1px solid rgba(47, 118, 88, 0.24);
+  border-radius: 999px;
+  background: rgba(229, 241, 233, 0.9);
+  color: var(--green);
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 780;
+}
+
+.timeline-control {
+  display: block;
+  min-width: 0;
+}
+
+.timeline-range {
+  --progress: 0%;
+  width: 100%;
+  height: 12px;
+  appearance: none;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, var(--green) 0 var(--progress), rgba(222, 219, 208, 0.9) var(--progress) 100%);
+  cursor: pointer;
+  outline: 0;
+}
+
+.timeline-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.timeline-range::-webkit-slider-thumb {
+  width: 24px;
+  height: 24px;
+  appearance: none;
+  border: 3px solid #fffdf8;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 6px 18px rgba(31, 37, 32, 0.28);
+}
+
+.timeline-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #fffdf8;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 6px 18px rgba(31, 37, 32, 0.28);
+}
+
+.map-stage {
+  position: relative;
+  isolation: isolate;
+  background: #dfe8db;
+}
+
+.map-stage::before,
+.map-stage::after {
+  position: absolute;
+  inset: 0;
+  z-index: 420;
+  pointer-events: none;
+  content: "";
+  transition: opacity 420ms ease;
+}
+
+.map-stage::before {
+  background:
+    radial-gradient(circle at 80% 18%, rgba(255, 220, 114, 0.32), transparent 10rem),
+    linear-gradient(180deg, rgba(255, 253, 248, 0.02), rgba(255, 253, 248, 0.1));
+  opacity: 0.95;
+}
+
+.map-stage::after {
+  background:
+    radial-gradient(circle at 84% 16%, rgba(255, 255, 230, 0.18), transparent 7rem),
+    linear-gradient(180deg, rgba(14, 23, 43, 0.5), rgba(14, 23, 43, 0.22));
+  opacity: 0;
+}
+
+.map-stage.is-night::before {
+  opacity: 0;
+}
+
+.map-stage.is-night::after {
+  opacity: 1;
+}
+
+.map-stage.is-night .map-day-badge,
+.map-stage.is-night + .map-day-badge {
+  border-color: rgba(39, 125, 168, 0.35);
+  background: rgba(39, 125, 168, 0.12);
+  color: var(--rain);
+}
+
+.map-clock {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 430;
+  display: grid;
+  gap: 3px;
+  max-width: min(320px, calc(100% - 28px));
+  border: 1px solid rgba(255, 253, 248, 0.58);
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.88);
+  box-shadow: 0 16px 36px rgba(31, 37, 32, 0.16);
+  padding: 10px 12px;
+  color: var(--ink);
+  backdrop-filter: blur(14px);
+}
+
+.map-clock span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.map-clock strong {
+  color: var(--green);
+  font-size: clamp(1.6rem, 7vw, 2.6rem);
+  line-height: 0.9;
+}
+
+.map-stage.is-night .map-clock {
+  border-color: rgba(255, 253, 248, 0.25);
+  background: rgba(31, 37, 48, 0.84);
+  color: #fffdf8;
+}
+
+.map-stage.is-night .map-clock strong {
+  color: #f4d979;
+}
+
+.map-stage.is-night .map-clock span {
+  color: rgba(255, 253, 248, 0.78);
+}
+
+.map-stage .leaflet-container {
+  transition: filter 420ms ease;
+}
+
+.map-stage.is-night .leaflet-container {
+  filter: saturate(0.78) brightness(0.72) contrast(1.08);
+}
+
+.weather-marker__body {
+  position: relative;
+  overflow: hidden;
+  grid-template-columns: 30px auto;
+  min-width: 104px;
+  transform: translateZ(0);
+  transition:
+    transform 220ms ease,
+    background 320ms ease,
+    border-color 320ms ease,
+    box-shadow 320ms ease;
+  animation: marker-pop 420ms ease;
+}
+
+.weather-marker__body:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+.weather-marker__body img {
+  width: 30px;
+  height: 30px;
+}
+
+.weather-marker__body strong {
+  font-size: 1.08rem;
+}
+
+.weather-marker__body span,
+.weather-marker__body small {
+  max-width: 64px;
+}
+
+.weather-marker__body--hot {
+  border-color: rgba(182, 95, 52, 0.34);
+  box-shadow: 0 12px 26px rgba(182, 95, 52, 0.2);
+}
+
+.weather-marker__body--cold {
+  border-color: rgba(39, 125, 168, 0.34);
+  box-shadow: 0 12px 26px rgba(39, 125, 168, 0.18);
+}
+
+.weather-marker__body--rain::after,
+.weather-marker__body--drizzle::after,
+.weather-marker__body--storm::after,
+.weather-marker__body--snow::after {
+  position: absolute;
+  inset: -22px;
+  z-index: -1;
+  content: "";
+  opacity: 0.38;
+}
+
+.weather-marker__body--rain::after,
+.weather-marker__body--drizzle::after {
+  background: repeating-linear-gradient(115deg, transparent 0 8px, rgba(39, 125, 168, 0.28) 9px 11px);
+  animation: marker-rain 720ms linear infinite;
+}
+
+.weather-marker__body--storm::after {
+  background:
+    radial-gradient(circle at 24% 25%, rgba(184, 138, 11, 0.42), transparent 1.8rem),
+    repeating-linear-gradient(115deg, transparent 0 7px, rgba(39, 125, 168, 0.3) 8px 10px);
+  animation: marker-rain 560ms linear infinite;
+}
+
+.weather-marker__body--snow::after {
+  background-image: radial-gradient(circle, rgba(39, 125, 168, 0.3) 1.4px, transparent 1.6px);
+  background-size: 10px 10px;
+  animation: marker-snow 1700ms linear infinite;
+}
+
+.weather-marker__body--clear {
+  background:
+    radial-gradient(circle at 21px 18px, rgba(255, 210, 87, 0.22), transparent 2.6rem),
+    rgba(255, 253, 248, 0.94);
+}
+
+.weather-marker__body--fog {
+  background:
+    repeating-linear-gradient(0deg, rgba(222, 219, 208, 0.3) 0 4px, transparent 5px 10px),
+    rgba(255, 253, 248, 0.94);
+}
+
+@keyframes marker-pop {
+  from {
+    transform: translateY(5px) scale(0.96);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes marker-rain {
+  from {
+    transform: translateY(-8px);
+  }
+  to {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes marker-snow {
+  from {
+    transform: translateY(-6px);
+  }
+  to {
+    transform: translateY(6px);
+  }
+}
+
+.leaflet-popup-content a {
+  display: inline-flex;
+  margin-top: 4px;
+  border: 1px solid rgba(47, 118, 88, 0.26);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  padding: 5px 8px;
+  font-weight: 720;
+}
+
+@media (max-width: 700px) {
+  .map-toolbar--player {
+    flex-direction: column;
+  }
+
+  .map-toolbar--player .play-button {
+    width: 100%;
+  }
+
+  .weather-map {
+    min-height: 420px;
+    height: 62vh;
+  }
+
+  .map-clock {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .map-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .map-tabs a {
+    flex: 0 0 auto;
+  }
+}
