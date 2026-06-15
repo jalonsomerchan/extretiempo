@@ -1,0 +1,435 @@
+---
+import { locations } from "../../data/locations";
+import "../../styles/global.css";
+
+export function getStaticPaths() {
+  return locations.map((location) => ({
+    params: { slug: location.slug },
+    props: { location },
+  }));
+}
+
+const { location } = Astro.props;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{location.name} | ExtreTiempo</title>
+    <meta
+      name="description"
+      content={`Prevision meteorologica de ${location.name} con datos de Open-Meteo.`}
+    />
+  </head>
+  <body>
+    <main class="app-shell" data-page="location" data-location={JSON.stringify(location)}>
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">ExtreTiempo</span>
+            <span class="brand__name">{location.name}</span>
+            <span class="meta" data-updated>Actualizando</span>
+          </span>
+        </a>
+        <div class="site-header__actions">
+          <button class="star-button" type="button" aria-label="Guardar en favoritos" aria-pressed="false" data-favorite-current>
+            <span aria-hidden="true">☆</span>
+          </button>
+          <button
+            class="hamburger"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            data-menu-button
+          >
+            <span class="hamburger__lines" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        </div>
+        <nav class="menu-panel is-hidden" aria-label="Menu principal" data-menu-panel>
+          <a href="/">Inicio</a>
+          <a href="/">Buscar localidad</a>
+          <a href="/mapas/extremadura/">Mapa Extremadura</a>
+          <a href="/mapas/espana/">Mapa Espana</a>
+          <a href="/mapas/europa/">Mapa Europa</a>
+          <a href="/localidad/badajoz/">Badajoz</a>
+          <a href="/localidad/caceres/">Caceres</a>
+        </nav>
+      </header>
+
+      <div class="desktop-grid">
+        <section class="hero-weather" aria-labelledby="current-title">
+          <div class="hero-weather__main">
+            <div class="hero-weather__summary">
+              <p class="eyebrow">{location.province}</p>
+              <h2 id="current-title">Ahora</h2>
+              <p class="meta" data-current-description>Cargando prevision de Open-Meteo</p>
+            </div>
+            <div class="hero-weather__temp" data-current-temp>--</div>
+            <div class="quick-card__details">
+              <span data-feels-like>Sensacion --</span>
+              <span data-max-min>Max -- / Min --</span>
+            </div>
+          </div>
+          <img
+            class="weather-icon weather-icon--lg"
+            src="/weather/open-meteo-cloudy.svg"
+            alt=""
+            data-current-icon
+          />
+        </section>
+
+        <section class="section" aria-labelledby="metrics-title">
+          <div class="section__header">
+            <div>
+              <h2 class="section__title" id="metrics-title">Metricas clave</h2>
+              <p class="meta">Datos actuales y maximos diarios disponibles</p>
+            </div>
+          </div>
+          <div class="metrics-grid" data-metrics>
+            <article class="metric">
+              <span class="label">Lluvia</span>
+              <strong data-metric="precipitation">--</strong>
+            </article>
+            <article class="metric">
+              <span class="label">Prob. lluvia</span>
+              <strong data-metric="rainProbability">--</strong>
+            </article>
+            <article class="metric">
+              <span class="label">Viento</span>
+              <strong data-metric="wind">--</strong>
+            </article>
+            <article class="metric">
+              <span class="label">Rachas</span>
+              <strong data-metric="gusts">--</strong>
+            </article>
+            <article class="metric">
+              <span class="label">Humedad</span>
+              <strong data-metric="humidity">--</strong>
+            </article>
+            <article class="metric">
+              <span class="label">Nubes</span>
+              <strong data-metric="clouds">--</strong>
+            </article>
+            <article class="metric">
+              <span class="label">UV max</span>
+              <strong data-metric="uv">--</strong>
+            </article>
+            <article class="metric">
+              <span class="label">Direccion</span>
+              <strong data-metric="direction">--</strong>
+              <span class="compass" role="img" aria-label="Direccion del viento" data-compass>
+                <span class="compass__mark compass__mark--n">N</span>
+                <span class="compass__mark compass__mark--e">E</span>
+                <span class="compass__mark compass__mark--s">S</span>
+                <span class="compass__mark compass__mark--w">O</span>
+                <span class="compass__needle"></span>
+              </span>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <section class="section" aria-labelledby="hours-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="hours-title">Proximas horas</h2>
+            <p class="meta" data-hourly-label>Temperatura, lluvia y viento hora a hora</p>
+          </div>
+        </div>
+        <div class="scroll-strip" data-hourly>
+          {
+            Array.from({ length: 8 }).map(() => (
+              <article class="hour-card">
+                <img class="weather-icon weather-icon--sm" src="/weather/open-meteo-cloudy.svg" alt="" />
+                <span class="label">--</span>
+                <strong>--</strong>
+                <p class="meta">Cargando</p>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="days-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="days-title">Proximos dias</h2>
+            <p class="meta">Maximas, minimas, lluvia, viento y UV</p>
+          </div>
+        </div>
+        <div class="panel list" data-daily>
+          {
+            Array.from({ length: 7 }).map(() => (
+              <article class="day-accordion">
+                <button class="weather-row day-row" type="button">
+                  <img class="weather-icon weather-icon--sm" src="/weather/open-meteo-cloudy.svg" alt="" />
+                  <span>
+                    <span class="row__title">--</span>
+                    <span class="row__details">
+                      <span>Cargando prevision</span>
+                    </span>
+                  </span>
+                  <span class="row__metrics">
+                    <span>--</span>
+                    <span>--</span>
+                    <span>--</span>
+                  </span>
+                </button>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegacion principal">
+      <a href="/">Inicio</a>
+      <a href="/">Buscar</a>
+      <a href={`/localidad/${location.slug}/`} aria-current="page">Localidad</a>
+    </nav>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Datos meteorologicos de Open-Meteo. Esta localidad puede guardarse como favorita en este navegador.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer">Weather API</a>
+        <a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noreferrer">Geocoding</a>
+      </nav>
+    </footer>
+
+    <script>
+      import {
+        buildForecastUrl,
+        formatAmount,
+        formatDay,
+        formatHour,
+        formatPercent,
+        formatSpeed,
+        formatTemperature,
+        formatUpdatedAt,
+        formatUv,
+        normalizeForecast,
+        windDirectionLabel,
+      } from "../../lib/weather";
+
+      const page = document.querySelector("[data-page='location']");
+      const location = JSON.parse(page?.getAttribute("data-location") ?? "{}");
+      const menuButton = document.querySelector("[data-menu-button]");
+      const menuPanel = document.querySelector("[data-menu-panel]");
+      const favoriteButton = document.querySelector("[data-favorite-current]");
+      let activeForecast = null;
+      const currentFavorite = {
+        id: `static-${location.slug}`,
+        slug: location.slug,
+        name: location.name,
+        province: location.province,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        href: `/localidad/${location.slug}/`,
+      };
+
+      menuButton?.addEventListener("click", () => {
+        const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+        menuButton.setAttribute("aria-expanded", String(!isOpen));
+        menuPanel?.classList.toggle("is-hidden", isOpen);
+      });
+
+      updateFavoriteButton();
+
+      favoriteButton?.addEventListener("click", () => {
+        toggleFavorite(currentFavorite);
+        updateFavoriteButton();
+      });
+
+      loadForecast();
+
+      async function loadForecast() {
+        try {
+          const response = await fetch(buildForecastUrl(location));
+          if (!response.ok) throw new Error("Open-Meteo no respondio correctamente");
+          activeForecast = normalizeForecast(location, await response.json());
+          renderForecast(activeForecast);
+        } catch (error) {
+          const updated = document.querySelector("[data-updated]");
+          if (updated) updated.textContent = "No se pudo cargar Open-Meteo";
+        }
+      }
+
+      function renderForecast(forecast) {
+        setText("[data-updated]", formatUpdatedAt(forecast.updatedAt));
+        setText("[data-current-temp]", formatTemperature(forecast.current.temperature));
+        setText("[data-current-description]", forecast.current.description);
+        const currentIcon = document.querySelector("[data-current-icon]");
+        currentIcon?.setAttribute("src", forecast.current.image);
+        currentIcon?.setAttribute("alt", forecast.current.description);
+        setText("[data-feels-like]", `Sensacion ${formatTemperature(forecast.current.apparentTemperature)}`);
+        setText(
+          "[data-max-min]",
+          `Max ${formatTemperature(forecast.today.max)} / Min ${formatTemperature(forecast.today.min)}`,
+        );
+
+        setText("[data-metric='precipitation']", formatAmount(forecast.current.precipitation));
+        setText("[data-metric='rainProbability']", formatPercent(forecast.today.precipitationProbability));
+        setText("[data-metric='wind']", formatSpeed(forecast.current.windSpeed));
+        setText("[data-metric='gusts']", formatSpeed(forecast.current.windGusts));
+        setText("[data-metric='humidity']", formatPercent(forecast.current.humidity));
+        setText("[data-metric='clouds']", formatPercent(forecast.current.cloudCover));
+        setText("[data-metric='uv']", formatUv(forecast.today.uvMax));
+        setText("[data-metric='direction']", windDirectionLabel(forecast.current.windDirection));
+        updateCompass(forecast.current.windDirection);
+
+        renderHourly(upcomingHours(forecast.hourly), "Proximas horas");
+        renderDaily(forecast.daily);
+      }
+
+      function renderHourly(points, label) {
+        const container = document.querySelector("[data-hourly]");
+        if (!container) return;
+        setText("[data-hourly-label]", label);
+
+        container.innerHTML = points
+          .map(
+            (point) => `
+              <article class="hour-card">
+                <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
+                <span class="label">${formatHour(point.time)}</span>
+                <strong>${formatTemperature(point.temperature)}</strong>
+                <p class="meta">${point.description}</p>
+                <p class="meta">Lluvia ${formatPercent(point.rainProbability)}</p>
+                <p class="meta">Viento ${formatSpeed(point.windSpeed)}</p>
+              </article>
+            `,
+          )
+          .join("");
+      }
+
+      function renderDaily(points) {
+        const container = document.querySelector("[data-daily]");
+        if (!container) return;
+
+        container.innerHTML = points
+          .map(
+            (point, index) => `
+              <article class="day-accordion" data-day-item="${point.date}">
+                <button class="weather-row day-row" type="button" data-day="${point.date}" aria-expanded="false" aria-controls="hours-${point.date}">
+                  <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
+                  <span>
+                    <span class="row__title">${index === 0 ? "Hoy" : formatDay(point.date, true)}</span>
+                    <span class="row__details">
+                      <span>${point.description}</span>
+                      <span>UV ${formatUv(point.uvMax)}</span>
+                    </span>
+                  </span>
+                  <span class="row__metrics">
+                    <span>${formatTemperature(point.max)} / ${formatTemperature(point.min)}</span>
+                    <span>${formatPercent(point.precipitationProbability)}</span>
+                    <span>${formatSpeed(point.windMax)}</span>
+                  </span>
+                </button>
+                <div class="day-panel is-hidden" id="hours-${point.date}" data-day-panel="${point.date}">
+                  <div class="day-panel__hours">
+                    ${renderAccordionHours(point.date)}
+                  </div>
+                </div>
+              </article>
+            `,
+          )
+          .join("");
+
+        container.querySelectorAll("[data-day]").forEach((button) => {
+          button.addEventListener("click", () => toggleDay(button.dataset.day, button));
+        });
+      }
+
+      function toggleDay(date, button) {
+        if (!activeForecast || !date) return;
+        const panel = document.querySelector(`[data-day-panel="${date}"]`);
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel?.classList.toggle("is-hidden", isOpen);
+      }
+
+      function renderAccordionHours(date) {
+        if (!activeForecast) return "";
+        return activeForecast.hourly
+          .filter((point) => point.time.startsWith(date))
+          .map(
+            (point) => `
+              <article class="day-hour">
+                <span class="day-hour__time">${formatHour(point.time)}</span>
+                <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
+                <strong>${formatTemperature(point.temperature)}</strong>
+                <span>${formatPercent(point.rainProbability)}</span>
+                <span>${formatSpeed(point.windSpeed)}</span>
+              </article>
+            `,
+          )
+          .join("");
+      }
+
+      function upcomingHours(points) {
+        const now = Date.now();
+        return points
+          .filter((point) => new Date(point.time).getTime() >= now - 60 * 60 * 1000)
+          .slice(0, 12);
+      }
+
+      function updateCompass(degrees) {
+        const compass = document.querySelector("[data-compass]");
+        const needle = compass?.querySelector(".compass__needle");
+        if (!compass || !needle || degrees === null) return;
+        compass.setAttribute("aria-label", `Viento ${windDirectionLabel(degrees)} ${Math.round(degrees)} grados`);
+        needle.style.transform = `translate(-50%, -86%) rotate(${degrees}deg)`;
+      }
+
+      function setText(selector, value) {
+        const element = document.querySelector(selector);
+        if (element) element.textContent = value;
+      }
+
+      function getFavorites() {
+        try {
+          return JSON.parse(localStorage.getItem("extretiempo:favorites") ?? "[]");
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function setFavorites(favorites) {
+        localStorage.setItem("extretiempo:favorites", JSON.stringify(favorites.slice(0, 12)));
+      }
+
+      function toggleFavorite(favorite) {
+        const favorites = getFavorites();
+        if (favorites.some((item) => item.id === favorite.id)) {
+          setFavorites(favorites.filter((item) => item.id !== favorite.id));
+          return;
+        }
+        setFavorites([favorite, ...favorites]);
+      }
+
+      function updateFavoriteButton() {
+        if (!favoriteButton) return;
+        const saved = getFavorites().some((item) => item.id === currentFavorite.id);
+        favoriteButton.setAttribute("aria-pressed", String(saved));
+        favoriteButton.setAttribute(
+          "aria-label",
+          saved ? `Quitar ${currentFavorite.name} de favoritos` : `Guardar ${currentFavorite.name} en favoritos`,
+        );
+        favoriteButton.innerHTML = `<span aria-hidden="true">${saved ? "★" : "☆"}</span>`;
+      }
+    </script>
+  </body>
+</html>

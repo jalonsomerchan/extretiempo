@@ -1,17 +1,593 @@
 ---
-
+import { featuredLocations, locations } from "../data/locations";
+import "../styles/global.css";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>ExtreTiempo | Tiempo local en Extremadura</title>
+    <meta
+      name="description"
+      content="Consulta el tiempo por municipios de Espana con datos de Open-Meteo."
+    />
+  </head>
+  <body>
+    <main class="app-shell" data-page="home">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Tiempo municipal</span>
+            <span class="brand__name">ExtreTiempo</span>
+            <span class="meta" data-updated>Actualizando</span>
+          </span>
+        </a>
+        <div class="site-header__actions">
+          <a class="link-button" href="#buscar">Buscar</a>
+          <button
+            class="hamburger"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            data-menu-button
+          >
+            <span class="hamburger__lines" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        </div>
+        <nav class="menu-panel is-hidden" aria-label="Menu principal" data-menu-panel>
+          <a href="/">Inicio</a>
+          <a href="#buscar">Buscar localidad</a>
+          <a href="#favoritos">Favoritos</a>
+          <a href="/mapas/extremadura/">Mapa Extremadura</a>
+          <a href="/mapas/espana/">Mapa Espana</a>
+          <a href="/mapas/europa/">Mapa Europa</a>
+          <a href="#locations-title">Todas las localidades</a>
+          <a href="/localidad/badajoz/">Badajoz</a>
+        </nav>
+      </header>
+
+      <section class="search-panel" id="buscar" aria-labelledby="search-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="search-title">Busca cualquier municipio</h2>
+            <p class="meta">Busqueda en Espana con Geocoding API de Open-Meteo</p>
+          </div>
+        </div>
+        <label class="search-field">
+          <span aria-hidden="true">Buscar</span>
+          <input
+            type="search"
+            name="q"
+            placeholder="Madrid, Sevilla, Badajoz, Vigo..."
+            autocomplete="off"
+            data-search
+          />
+        </label>
+        <div class="search-results is-hidden" data-search-results></div>
+        <div class="chips" aria-label="Localidades frecuentes">
+          {
+            featuredLocations.slice(0, 6).map((location) => (
+              <a class="chip" href={`/localidad/${location.slug}/`}>
+                {location.name}
+              </a>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="section" id="favoritos" aria-labelledby="favorites-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="favorites-title">Tus favoritos</h2>
+            <p class="meta">Guardados en este navegador</p>
+          </div>
+        </div>
+        <div class="quick-grid" data-favorites-list>
+          <p class="state">Aun no tienes municipios favoritos.</p>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="quick-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="quick-title">Extremadura destacada</h2>
+            <p class="meta">Temperatura, lluvia y viento de un vistazo</p>
+          </div>
+        </div>
+        <div class="quick-grid" data-featured-list>
+          {
+            featuredLocations.slice(0, 4).map((location) => (
+              <a
+                class="quick-card"
+                href={`/localidad/${location.slug}/`}
+                data-featured-card
+                data-slug={location.slug}
+              >
+                <img
+                  class="weather-icon"
+                  src="/weather/open-meteo-cloudy.svg"
+                  alt=""
+                  loading="lazy"
+                  data-weather-icon
+                />
+                <span class="quick-card__main">
+                  <span class="quick-card__title">{location.name}</span>
+                  <span class="meta">{location.province}</span>
+                  <span class="quick-card__details">
+                    <span>Prevision cargando</span>
+                  </span>
+                </span>
+                <span class="quick-card__temp">--</span>
+              </a>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="insights-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="insights-title">Lo destacado hoy</h2>
+            <p class="meta">Entre localidades visibles, no son alertas oficiales</p>
+          </div>
+        </div>
+        <div class="insight-grid" data-insights>
+          <article class="insight">
+            <span class="label">Mas calor</span>
+            <strong>--</strong>
+          </article>
+          <article class="insight">
+            <span class="label">Lluvia mas probable</span>
+            <strong>--</strong>
+          </article>
+          <article class="insight">
+            <span class="label">Viento mas fuerte</span>
+            <strong>--</strong>
+          </article>
+          <article class="insight">
+            <span class="label">UV mas alto</span>
+            <strong>--</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="locations-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="locations-title">Todas las localidades</h2>
+            <p class="meta">Filtra por provincia o busca por nombre</p>
+          </div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Filtro por provincia">
+          <button class="tab" type="button" aria-selected="true" data-province="Todas">
+            Todas
+          </button>
+          <button class="tab" type="button" aria-selected="false" data-province="Badajoz">
+            Badajoz
+          </button>
+          <button class="tab" type="button" aria-selected="false" data-province="Caceres">
+            Caceres
+          </button>
+        </div>
+        <div class="panel list" data-location-list>
+          {
+            locations.map((location) => (
+              <a
+                class="weather-row"
+                href={`/localidad/${location.slug}/`}
+                data-location-row
+                data-slug={location.slug}
+                data-name={location.name.toLowerCase()}
+                data-province={location.province}
+              >
+                <img
+                  class="weather-icon weather-icon--sm"
+                  src="/weather/open-meteo-cloudy.svg"
+                  alt=""
+                  loading="lazy"
+                  data-weather-icon
+                />
+                <span>
+                  <span class="row__title">{location.name}</span>
+                  <span class="meta">{location.province}</span>
+                  <span class="row__details">
+                    <span>Cargando prevision</span>
+                  </span>
+                </span>
+                <span class="row__metrics">
+                  <span>--</span>
+                  <span>--</span>
+                  <span>--</span>
+                </span>
+              </a>
+            ))
+          }
+          <p class="state is-hidden" data-empty>No hay localidades con ese filtro.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegacion principal">
+      <a href="/" aria-current="page">Inicio</a>
+      <a href="#buscar">Buscar</a>
+      <a href="#favoritos">Favoritos</a>
+    </nav>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Prevision municipal con Open-Meteo. Favoritos guardados solo en tu navegador.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer">Weather API</a>
+        <a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noreferrer">Geocoding</a>
+        <a href="/mapas/extremadura/">Mapa Extremadura</a>
+        <a href="/mapas/espana/">Mapa Espana</a>
+        <a href="/mapas/europa/">Mapa Europa</a>
+        <a href="/localidad/badajoz/">Badajoz</a>
+      </nav>
+    </footer>
+
+    <script>
+      import { locations } from "../data/locations";
+      import {
+        buildForecastUrl,
+        buildGenericLocationHref,
+        buildGeocodingUrl,
+        formatPercent,
+        formatSpeed,
+        formatTemperature,
+        formatUpdatedAt,
+        normalizeForecast,
+      } from "../lib/weather";
+
+      const state = {
+        province: "Todas",
+        query: "",
+        forecasts: new Map(),
+      };
+
+      const updated = document.querySelector("[data-updated]");
+      const search = document.querySelector("[data-search]");
+      const searchResults = document.querySelector("[data-search-results]");
+      const favoritesList = document.querySelector("[data-favorites-list]");
+      const rows = Array.from(document.querySelectorAll("[data-location-row]"));
+      const empty = document.querySelector("[data-empty]");
+      const tabs = Array.from(document.querySelectorAll("[data-province]"));
+      const menuButton = document.querySelector("[data-menu-button]");
+      const menuPanel = document.querySelector("[data-menu-panel]");
+
+      menuButton?.addEventListener("click", () => {
+        const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+        menuButton.setAttribute("aria-expanded", String(!isOpen));
+        menuPanel?.classList.toggle("is-hidden", isOpen);
+      });
+
+      renderFavorites();
+
+      const requests = locations.map(async (location) => {
+        const response = await fetch(buildForecastUrl(location));
+        if (!response.ok) throw new Error(`No se pudo cargar ${location.name}`);
+        const forecast = normalizeForecast(location, await response.json());
+        state.forecasts.set(location.slug, forecast);
+        updateLocationRow(forecast);
+        updateFeaturedCard(forecast);
+        updateInsights();
+        if (updated) updated.textContent = formatUpdatedAt(forecast.updatedAt);
+      });
+
+      Promise.allSettled(requests).then(() => {
+        if (state.forecasts.size === 0 && updated) {
+          updated.textContent = "No se pudo cargar Open-Meteo";
+        }
+      });
+
+      search?.addEventListener("input", (event) => {
+        state.query = event.target.value.trim().toLowerCase();
+        applyFilters();
+        queueGeocodingSearch(event.target.value.trim());
+      });
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          state.province = tab.dataset.province ?? "Todas";
+          tabs.forEach((item) => {
+            item.setAttribute("aria-selected", String(item === tab));
+          });
+          applyFilters();
+        });
+      });
+
+      function updateLocationRow(forecast) {
+        const row = document.querySelector(`[data-location-row][data-slug="${forecast.slug}"]`);
+        if (!row) return;
+
+        const details = row.querySelector(".row__details");
+        const metrics = row.querySelector(".row__metrics");
+        const icon = row.querySelector("[data-weather-icon]");
+
+        if (details) {
+          details.innerHTML = `
+            <span>${forecast.current.description}</span>
+            <span>Max ${formatTemperature(forecast.today.max)} / Min ${formatTemperature(forecast.today.min)}</span>
+          `;
+        }
+
+        if (metrics) {
+          metrics.innerHTML = `
+            <span>${formatTemperature(forecast.current.temperature)}</span>
+            <span>${formatPercent(forecast.today.precipitationProbability)}</span>
+            <span>${formatSpeed(forecast.current.windSpeed)}</span>
+          `;
+        }
+
+        if (icon) {
+          icon.setAttribute("src", forecast.current.image);
+          icon.setAttribute("alt", forecast.current.description);
+        }
+      }
+
+      function updateFeaturedCard(forecast) {
+        const card = document.querySelector(`[data-featured-card][data-slug="${forecast.slug}"]`);
+        if (!card) return;
+
+        const temp = card.querySelector(".quick-card__temp");
+        const details = card.querySelector(".quick-card__details");
+        const icon = card.querySelector("[data-weather-icon]");
+
+        if (temp) temp.textContent = formatTemperature(forecast.current.temperature);
+        if (details) {
+          details.innerHTML = `
+            <span>${forecast.current.description}</span>
+            <span>Lluvia ${formatPercent(forecast.today.precipitationProbability)}</span>
+            <span>Viento ${formatSpeed(forecast.current.windSpeed)}</span>
+          `;
+        }
+        if (icon) {
+          icon.setAttribute("src", forecast.current.image);
+          icon.setAttribute("alt", forecast.current.description);
+        }
+      }
+
+      function updateInsights() {
+        const forecasts = Array.from(state.forecasts.values());
+        const insights = document.querySelector("[data-insights]");
+        if (!insights || forecasts.length === 0) return;
+
+        const hottest = maxBy(forecasts, (item) => item.current.temperature);
+        const rainiest = maxBy(forecasts, (item) => item.today.precipitationProbability);
+        const windiest = maxBy(forecasts, (item) => item.current.windGusts);
+        const highestUv = maxBy(forecasts, (item) => item.today.uvMax);
+        const cards = insights.querySelectorAll(".insight strong");
+
+        if (cards[0]) cards[0].textContent = hottest ? `${hottest.name} ${formatTemperature(hottest.current.temperature)}` : "--";
+        if (cards[1]) cards[1].textContent = rainiest ? `${rainiest.name} ${formatPercent(rainiest.today.precipitationProbability)}` : "--";
+        if (cards[2]) cards[2].textContent = windiest ? `${windiest.name} ${formatSpeed(windiest.current.windGusts)}` : "--";
+        if (cards[3]) cards[3].textContent = highestUv ? `${highestUv.name} ${highestUv.today.uvMax ?? "--"}` : "--";
+      }
+
+      let geocodingTimer;
+
+      function queueGeocodingSearch(query) {
+        clearTimeout(geocodingTimer);
+        if (query.length < 3) {
+          renderSearchResults([]);
+          return;
+        }
+        geocodingTimer = setTimeout(() => searchSpain(query), 280);
+      }
+
+      async function searchSpain(query) {
+        if (!searchResults) return;
+        searchResults.classList.remove("is-hidden");
+        searchResults.innerHTML = `<p class="state">Buscando municipios...</p>`;
+        try {
+          const response = await fetch(buildGeocodingUrl(query));
+          if (!response.ok) throw new Error("Geocoding no respondio");
+          const payload = await response.json();
+          renderSearchResults(payload.results ?? []);
+        } catch (error) {
+          searchResults.innerHTML = `<p class="state">No se pudo buscar ahora.</p>`;
+        }
+      }
+
+      function renderSearchResults(results) {
+        if (!searchResults) return;
+        if (!state.query || state.query.length < 3) {
+          searchResults.classList.add("is-hidden");
+          searchResults.innerHTML = "";
+          return;
+        }
+        searchResults.classList.remove("is-hidden");
+        if (results.length === 0) {
+          searchResults.innerHTML = `<p class="state">Sin resultados en Espana.</p>`;
+          return;
+        }
+
+        searchResults.innerHTML = results
+          .map((result) => {
+            const location = locationFromGeocoding(result);
+            const isSaved = isFavorite(location.id);
+            return `
+              <div class="search-result">
+                <a href="${buildGenericLocationHref(location)}">
+                  <strong>${location.name}</strong>
+                  <span>${location.province || "Espana"}</span>
+                </a>
+                <button
+                  class="star-button"
+                  type="button"
+                  aria-label="${isSaved ? `Quitar ${location.name} de favoritos` : `Guardar ${location.name} en favoritos`}"
+                  aria-pressed="${String(isSaved)}"
+                  data-favorite-add="${encodeURIComponent(JSON.stringify(location))}"
+                >
+                  <span aria-hidden="true">${isSaved ? "★" : "☆"}</span>
+                </button>
+              </div>
+            `;
+          })
+          .join("");
+
+        searchResults.querySelectorAll("[data-favorite-add]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const location = JSON.parse(decodeURIComponent(button.getAttribute("data-favorite-add")));
+            toggleFavorite(location);
+            const saved = isFavorite(location.id);
+            button.setAttribute("aria-pressed", String(saved));
+            button.setAttribute(
+              "aria-label",
+              saved ? `Quitar ${location.name} de favoritos` : `Guardar ${location.name} en favoritos`,
+            );
+            button.innerHTML = `<span aria-hidden="true">${saved ? "★" : "☆"}</span>`;
+            renderFavorites();
+          });
+        });
+      }
+
+      function renderFavorites() {
+        if (!favoritesList) return;
+        const favorites = getFavorites();
+        if (favorites.length === 0) {
+          favoritesList.innerHTML = `<p class="state">Aun no tienes municipios favoritos.</p>`;
+          return;
+        }
+
+        favoritesList.innerHTML = favorites
+          .map((favorite) => `
+            <article class="quick-card favorite-card" data-favorite-card data-id="${favorite.id}">
+              <img class="weather-icon" src="/weather/open-meteo-cloudy.svg" alt="" loading="lazy" data-weather-icon />
+              <a class="quick-card__main" href="${favorite.href}">
+                <span class="quick-card__title">${favorite.name}</span>
+                <span class="meta">${favorite.province}</span>
+                <span class="quick-card__details"><span>Cargando prevision</span></span>
+              </a>
+              <a class="quick-card__temp" href="${favorite.href}">--</a>
+              <button class="star-button favorite-star" type="button" aria-label="Quitar ${favorite.name} de favoritos" aria-pressed="true" data-favorite-remove="${favorite.id}">
+                <span aria-hidden="true">★</span>
+              </button>
+            </article>
+          `)
+          .join("");
+
+        favoritesList.querySelectorAll("[data-favorite-remove]").forEach((button) => {
+          button.addEventListener("click", () => {
+            removeFavorite(button.getAttribute("data-favorite-remove"));
+          });
+        });
+
+        favorites.forEach(async (favorite) => {
+          try {
+            const response = await fetch(buildForecastUrl(favorite));
+            if (!response.ok) return;
+            const forecast = normalizeForecast(favorite, await response.json());
+            updateFavoriteCard(favorite.id, forecast);
+          } catch (error) {}
+        });
+      }
+
+      function updateFavoriteCard(id, forecast) {
+        const card = document.querySelector(`[data-favorite-card][data-id="${id}"]`);
+        if (!card) return;
+        const temp = card.querySelector(".quick-card__temp");
+        const details = card.querySelector(".quick-card__details");
+        const icon = card.querySelector("[data-weather-icon]");
+        if (temp) temp.textContent = formatTemperature(forecast.current.temperature);
+        if (details) {
+          details.innerHTML = `
+            <span>${forecast.current.description}</span>
+            <span>Lluvia ${formatPercent(forecast.today.precipitationProbability)}</span>
+            <span>Viento ${formatSpeed(forecast.current.windSpeed)}</span>
+          `;
+        }
+        if (icon) {
+          icon.setAttribute("src", forecast.current.image);
+          icon.setAttribute("alt", forecast.current.description);
+        }
+      }
+
+      function addFavorite(location) {
+        const favorites = getFavorites();
+        if (!favorites.some((favorite) => favorite.id === location.id)) {
+          favorites.unshift(location);
+          localStorage.setItem("extretiempo:favorites", JSON.stringify(favorites.slice(0, 12)));
+        }
+        renderFavorites();
+      }
+
+      function toggleFavorite(location) {
+        if (isFavorite(location.id)) {
+          removeFavorite(location.id);
+          return;
+        }
+        addFavorite(location);
+      }
+
+      function removeFavorite(id) {
+        const favorites = getFavorites().filter((favorite) => favorite.id !== id);
+        localStorage.setItem("extretiempo:favorites", JSON.stringify(favorites));
+        renderFavorites();
+      }
+
+      function isFavorite(id) {
+        return getFavorites().some((favorite) => favorite.id === id);
+      }
+
+      function getFavorites() {
+        try {
+          return JSON.parse(localStorage.getItem("extretiempo:favorites") ?? "[]");
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function locationFromGeocoding(result) {
+        const province = [result.admin2, result.admin1].filter(Boolean).join(", ");
+        const location = {
+          id: `geo-${result.id}`,
+          slug: `geo-${result.id}`,
+          name: result.name,
+          province: province || result.country || "Espana",
+          latitude: result.latitude,
+          longitude: result.longitude,
+        };
+        return {
+          ...location,
+          href: buildGenericLocationHref(location),
+        };
+      }
+
+      function applyFilters() {
+        let visibleCount = 0;
+        rows.forEach((row) => {
+          const matchesProvince =
+            state.province === "Todas" || row.dataset.province === state.province;
+          const matchesQuery = !state.query || row.dataset.name?.includes(state.query);
+          const isVisible = matchesProvince && matchesQuery;
+          row.classList.toggle("is-hidden", !isVisible);
+          if (isVisible) visibleCount += 1;
+        });
+
+        empty?.classList.toggle("is-hidden", visibleCount !== 0);
+      }
+
+      function maxBy(items, getter) {
+        return items.reduce((best, item) => {
+          const value = getter(item);
+          if (value === null || value === undefined) return best;
+          if (!best) return item;
+          const bestValue = getter(best);
+          return bestValue === null || value > bestValue ? item : best;
+        }, null);
+      }
+    </script>
+  </body>
 </html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Parcialmente nuboso">
+  <rect width="96" height="96" rx="24" fill="#edf7f6"/>
+  <circle cx="36" cy="36" r="16" fill="#f3b84d"/>
+  <path fill="#dbe7e2" d="M33 66h36a15 15 0 0 0 1-30 22 22 0 0 0-41 6 12 12 0 0 0 4 24Z"/>
+  <path fill="#ffffff" d="M29 68h36a13 13 0 0 0 1-26 19 19 0 0 0-36 5 11 11 0 0 0-1 21Z"/>
+</svg>

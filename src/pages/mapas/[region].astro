@@ -1,0 +1,305 @@
+---
+import { mapRegions } from "../../data/mapRegions";
+import "leaflet/dist/leaflet.css";
+import "../../styles/global.css";
+
+export function getStaticPaths() {
+  return mapRegions.map((region) => ({
+    params: { region: region.slug },
+    props: { region },
+  }));
+}
+
+const { region } = Astro.props;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{region.title} | ExtreTiempo</title>
+    <meta name="description" content={region.subtitle} />
+  </head>
+  <body>
+    <main class="app-shell map-shell" data-region={JSON.stringify(region)}>
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Mapas meteorologicos</span>
+            <span class="brand__name">{region.title}</span>
+            <span class="meta" data-map-status>Cargando ciudades</span>
+          </span>
+        </a>
+        <div class="site-header__actions">
+          <a class="link-button" href="/">Inicio</a>
+          <button
+            class="hamburger"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            data-menu-button
+          >
+            <span class="hamburger__lines" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        </div>
+        <nav class="menu-panel is-hidden" aria-label="Menu principal" data-menu-panel>
+          <a href="/">Inicio</a>
+          <a href="/mapas/extremadura/">Mapa Extremadura</a>
+          <a href="/mapas/espana/">Mapa Espana</a>
+          <a href="/mapas/europa/">Mapa Europa</a>
+        </nav>
+      </header>
+
+      <section class="map-hero" aria-labelledby="map-title">
+        <div>
+          <p class="eyebrow">Leaflet + Open-Meteo</p>
+          <h1 id="map-title">{region.title}</h1>
+          <p class="meta">{region.subtitle}</p>
+        </div>
+        <div class="map-tabs" aria-label="Cambiar mapa">
+          <a href="/mapas/extremadura/" aria-current={region.slug === "extremadura" ? "page" : undefined}>Extremadura</a>
+          <a href="/mapas/espana/" aria-current={region.slug === "espana" ? "page" : undefined}>Espana</a>
+          <a href="/mapas/europa/" aria-current={region.slug === "europa" ? "page" : undefined}>Europa</a>
+        </div>
+      </section>
+
+      <section class="map-panel" aria-label={`Mapa meteorologico de ${region.title}`}>
+        <div class="map-toolbar">
+          <button class="play-button" type="button" data-play>
+            <span aria-hidden="true">▶</span>
+            <span data-play-label>Play</span>
+          </button>
+          <div>
+            <strong data-time-label>Ahora</strong>
+            <p class="meta">Temperatura y clima por hora. Max/min corresponden al dia.</p>
+          </div>
+        </div>
+        <div id="weather-map" class="weather-map"></div>
+      </section>
+
+      <section class="section" aria-labelledby="map-cities-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="map-cities-title">Ciudades del mapa</h2>
+            <p class="meta">Pulsa un marcador para ver detalle de la ciudad.</p>
+          </div>
+        </div>
+        <div class="panel list" data-map-list>
+          <p class="state">Cargando datos de Open-Meteo</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Mapas con Leaflet y datos horarios de Open-Meteo. La animacion usa la prevision horaria disponible.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/mapas/extremadura/">Extremadura</a>
+        <a href="/mapas/espana/">Espana</a>
+        <a href="/mapas/europa/">Europa</a>
+        <a href="https://leafletjs.com/" target="_blank" rel="noreferrer">Leaflet</a>
+      </nav>
+    </footer>
+
+    <script>
+      import L from "leaflet";
+      import {
+        buildForecastUrl,
+        buildGenericLocationHref,
+        formatDay,
+        formatHour,
+        formatPercent,
+        formatSpeed,
+        formatTemperature,
+        normalizeForecast,
+      } from "../../lib/weather";
+
+      const root = document.querySelector("[data-region]");
+      const region = JSON.parse(root?.getAttribute("data-region") ?? "{}");
+      const status = document.querySelector("[data-map-status]");
+      const playButton = document.querySelector("[data-play]");
+      const playLabel = document.querySelector("[data-play-label]");
+      const timeLabel = document.querySelector("[data-time-label]");
+      const list = document.querySelector("[data-map-list]");
+      const menuButton = document.querySelector("[data-menu-button]");
+      const menuPanel = document.querySelector("[data-menu-panel]");
+
+      let map;
+      let playing = false;
+      let timer;
+      let hourIndex = 0;
+      let forecasts = [];
+      const markers = new Map();
+
+      menuButton?.addEventListener("click", () => {
+        const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+        menuButton.setAttribute("aria-expanded", String(!isOpen));
+        menuPanel?.classList.toggle("is-hidden", isOpen);
+      });
+
+      playButton?.addEventListener("click", () => {
+        playing = !playing;
+        playLabel.textContent = playing ? "Pausa" : "Play";
+        playButton.setAttribute("aria-pressed", String(playing));
+        if (playing) {
+          tick();
+          timer = window.setInterval(tick, 1200);
+          return;
+        }
+        window.clearInterval(timer);
+      });
+
+      init();
+
+      async function init() {
+        try {
+          map = L.map("weather-map", {
+            zoomControl: true,
+            scrollWheelZoom: true,
+          }).setView(region.center, region.zoom);
+
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 18,
+          }).addTo(map);
+
+          window.requestAnimationFrame(() => map.invalidateSize());
+          window.addEventListener("resize", () => map.invalidateSize());
+
+          const results = await Promise.allSettled(
+            region.cities.map(async (city) => {
+              const response = await fetch(buildForecastUrl(city));
+              if (!response.ok) throw new Error(`No se pudo cargar ${city.name}`);
+              return normalizeForecast(city, await response.json());
+            }),
+          );
+
+          forecasts = results
+            .filter((result) => result.status === "fulfilled")
+            .map((result) => result.value);
+
+          if (forecasts.length === 0) {
+            throw new Error("No se pudo cargar ninguna ciudad");
+          }
+
+          forecasts.forEach((forecast) => {
+            const city = region.cities.find((item) => item.slug === forecast.slug) ?? forecast;
+            const marker = L.marker([city.latitude, city.longitude], {
+              icon: createMarkerIcon(forecast, 0),
+            }).addTo(map);
+            marker.bindPopup(createPopup(forecast, 0));
+            markers.set(forecast.slug, marker);
+          });
+
+          renderCityList();
+          updateFrame(0);
+
+          if (status) {
+            const failed = results.length - forecasts.length;
+            status.textContent = failed
+              ? `${forecasts.length} ciudades cargadas, ${failed} sin datos`
+              : `${forecasts.length} ciudades cargadas`;
+          }
+        } catch (error) {
+          if (status) status.textContent = "No se pudo cargar el mapa";
+          if (list) {
+            list.innerHTML =
+              '<p class="state">No se pudo cargar el mapa. Revisa la conexion y vuelve a intentarlo.</p>';
+          }
+        }
+      }
+
+      function tick() {
+        hourIndex = (hourIndex + 1) % 24;
+        updateFrame(hourIndex);
+      }
+
+      function updateFrame(index) {
+        forecasts.forEach((forecast) => {
+          const marker = markers.get(forecast.slug);
+          if (!marker) return;
+          marker.setIcon(createMarkerIcon(forecast, index));
+          marker.setPopupContent(createPopup(forecast, index));
+        });
+
+        const sample = forecasts[0]?.hourly?.[index];
+        if (timeLabel) {
+          timeLabel.textContent = sample
+            ? `${formatDay(sample.time)} ${formatHour(sample.time)}`
+            : "Ahora";
+        }
+      }
+
+      function createMarkerIcon(forecast, index) {
+        const hour = forecast.hourly[index];
+        const image = hour?.image ?? forecast.current.image;
+        const description = hour?.description ?? forecast.current.description;
+        const temperature = hour?.temperature ?? forecast.current.temperature;
+
+        return L.divIcon({
+          className: "weather-marker",
+          html: `
+            <div class="weather-marker__body" title="${forecast.name}: ${description}">
+              <img src="${image}" alt="" />
+              <strong>${formatTemperature(temperature)}</strong>
+              <span>${forecast.name}</span>
+              <small>${formatTemperature(forecast.today.max)} / ${formatTemperature(forecast.today.min)}</small>
+            </div>
+          `,
+          iconSize: [88, 76],
+          iconAnchor: [44, 72],
+          popupAnchor: [0, -66],
+        });
+      }
+
+      function createPopup(forecast, index) {
+        const hour = forecast.hourly[index];
+        const description = hour?.description ?? forecast.current.description;
+        const temperature = hour?.temperature ?? forecast.current.temperature;
+        return `
+          <strong>${forecast.name}</strong>
+          <p>${description} · ${formatTemperature(temperature)}</p>
+          <p>Max ${formatTemperature(forecast.today.max)} · Min ${formatTemperature(forecast.today.min)}</p>
+          <p>Lluvia ${formatPercent(hour?.rainProbability ?? forecast.today.precipitationProbability)} · Viento ${formatSpeed(hour?.windSpeed ?? forecast.current.windSpeed)}</p>
+        `;
+      }
+
+      function renderCityList() {
+        if (!list) return;
+        list.innerHTML = forecasts
+          .map((forecast) => {
+            const city = region.cities.find((item) => item.slug === forecast.slug) ?? forecast;
+            return `
+              <a class="weather-row" href="${buildGenericLocationHref(city)}">
+                <img class="weather-icon weather-icon--sm" src="${forecast.current.image}" alt="${forecast.current.description}" loading="lazy" />
+                <span>
+                  <span class="row__title">${forecast.name}</span>
+                  <span class="row__details">
+                    <span>${forecast.current.description}</span>
+                    <span>Max ${formatTemperature(forecast.today.max)} / Min ${formatTemperature(forecast.today.min)}</span>
+                  </span>
+                </span>
+                <span class="row__metrics">
+                  <span>${formatTemperature(forecast.current.temperature)}</span>
+                  <span>${formatPercent(forecast.today.precipitationProbability)}</span>
+                  <span>${formatSpeed(forecast.current.windSpeed)}</span>
+                </span>
+              </a>
+            `;
+          })
+          .join("");
+      }
+
+    </script>
+  </body>
+</html>
