@@ -4,6 +4,8 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 const SITE_URL = 'https://extretiempo.alon.one';
+const BUILD_TIME = new Date();
+const BUILD_TIME_ISO = BUILD_TIME.toISOString();
 
 const locationSlugs = [
   'badajoz',
@@ -114,11 +116,11 @@ export default defineConfig({
       customPages: sitemapPages,
       changefreq: 'daily',
       priority: 0.8,
-      lastmod: new Date(),
+      lastmod: BUILD_TIME,
       serialize(item) {
         item.changefreq = changefreqForPage(item.url);
         item.priority = priorityForPage(item.url);
-        item.lastmod = new Date();
+        item.lastmod = BUILD_TIME_ISO;
         return item;
       },
     }),
