@@ -1,0 +1,68 @@
+---
+import { insightPages } from "../data/insightPages";
+import "../styles/global.css";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Herramientas meteorologicas | ExtreTiempo</title>
+    <meta name="description" content="Todas las paginas nuevas de ExtreTiempo: rankings, lluvia, calor, heladas, aire, polen, campo, historico, clima y rios." />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">ExtreTiempo</span>
+            <span class="brand__name">Herramientas</span>
+            <span class="meta">Paginas utiles</span>
+          </span>
+        </a>
+        <div class="site-header__actions">
+          <a class="link-button" href="/mapas/extremadura/">Mapa</a>
+          <a class="link-button" href="/hoy/">Hoy</a>
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="section__header">
+          <div>
+            <h1 class="section__title">Herramientas meteorologicas de Extremadura</h1>
+            <p class="meta">Datos de Open-Meteo y APIs libres, con cache local para no saturar servicios.</p>
+          </div>
+        </div>
+        <div class="quick-grid">
+          {insightPages.map((page) => (
+            <a class="quick-card" href={`/${page.slug}/`}>
+              <span class="brand__mark" aria-hidden="true">ET</span>
+              <span class="quick-card__main">
+                <span class="quick-card__title">{page.title}</span>
+                <span class="meta">{page.eyebrow} · {page.sourceLabel}</span>
+                <span class="quick-card__details"><span>{page.subtitle}</span></span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Panel meteorologico regional centrado en Extremadura.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/mapas/extremadura/">Mapa Extremadura</a>
+        <a href="/rankings/">Rankings</a>
+        <a href="/calidad-del-aire/">Calidad del aire</a>
+      </nav>
+    </footer>
+  </body>
+</html>
