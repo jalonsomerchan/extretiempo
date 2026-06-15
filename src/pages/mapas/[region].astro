@@ -60,7 +60,7 @@ const { region } = Astro.props;
 
       <section class="map-hero" aria-labelledby="map-title">
         <div>
-          <p class="eyebrow">Leaflet + Open-Meteo</p>
+          <p class="eyebrow">Mapa mudo + Open-Meteo</p>
           <h1 id="map-title">{region.title}</h1>
           <p class="meta">{region.subtitle}</p>
         </div>
@@ -132,7 +132,7 @@ const { region } = Astro.props;
     <footer class="site-footer">
       <div>
         <strong>ExtreTiempo</strong>
-        <p>Mapas con Leaflet y datos horarios de Open-Meteo. La animacion usa la prevision horaria disponible.</p>
+        <p>Mapas con Leaflet, fondo mudo y datos horarios de Open-Meteo cacheados en el navegador.</p>
       </div>
       <nav aria-label="Enlaces de pie">
         {mapRegions.map((item) => <a href={`/mapas/${item.slug}/`}>{item.shortTitle}</a>)}
@@ -149,13 +149,15 @@ const { region } = Astro.props;
         formatHour,
         formatPercent,
         formatSpeed,
-        formatTemperature,
         normalizeForecast,
         weatherStateForCode,
       } from "../../lib/weather";
 
       const PLAYER_HOUR_MS = 2600;
       const TIMELINE_PRECISION = 100;
+      const FORECAST_CACHE_PREFIX = "extretiempo:forecast:v3:";
+      const FORECAST_CACHE_TTL_MS = 30 * 60 * 1000;
+      const FORECAST_CONCURRENCY = 4;
 
       const root = document.querySelector("[data-region]");
       const region = JSON.parse(root?.getAttribute("data-region") ?? "{}");
@@ -182,6 +184,7 @@ const { region } = Astro.props;
       let framePosition = 0;
       let frameCount = 0;
       let places = [];
+      let cachePruned = false;
 
       menuButton?.addEventListener("click", () => {
         const isOpen = menuButton.getAttribute("aria-expanded") === "true";
@@ -215,9 +218,10 @@ const { region } = Astro.props;
             scrollWheelZoom: true,
           }).setView(region.center, region.zoom);
 
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 18,
+          L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            maxZoom: 20,
+            subdomains: "abcd",
           }).addTo(map);
 
           window.requestAnimationFrame(() => map.invalidateSize());
@@ -232,6 +236,7 @@ const { region } = Astro.props;
       async function loadForecasts() {
         setPlaying(false);
         clearPlaces();
+        pruneForecastCache();
         const mapLocations = getMapLocations();
 
         if (mapLocations.length === 0) {
@@ -253,13 +258,7 @@ const { region } = Astro.props;
         if (status) status.textContent = `Cargando ${mapLocations.length} localidades`;
         if (list) list.innerHTML = '<p class="state">Cargando datos de Open-Meteo</p>';
 
-        const results = await Promise.allSettled(
-          mapLocations.map(async (city) => {
-            const response = await fetch(buildForecastUrl(city));
-            if (!response.ok) throw new Error(`No se pudo cargar ${city.name}`);
-            return { city, forecast: normalizeForecast(city, await response.json()) };
-          }),
-        );
+        const results = await settleForecasts(mapLocations);
 
         places = results
           .filter((result) => result.status === "fulfilled")
@@ -278,6 +277,7 @@ const { region } = Astro.props;
             icon: createMarkerIcon(place, point),
             keyboard: true,
             title: place.city.name,
+            zIndexOffset: 1000,
           }).addTo(map);
           place.marker.bindPopup(createPopup(place, point));
         });
@@ -289,10 +289,132 @@ const { region } = Astro.props;
 
         if (status) {
           const failed = results.length - places.length;
+          const cached = places.filter((place) => place.cached).length;
+          const cacheText = cached ? ` · ${cached} desde cache` : "";
           status.textContent = failed
-            ? `${places.length} localidades cargadas, ${failed} sin datos`
-            : `${places.length} localidades cargadas`;
+            ? `${places.length} localidades cargadas, ${failed} sin datos${cacheText}`
+            : `${places.length} localidades cargadas${cacheText}`;
         }
+      }
+
+      async function settleForecasts(mapLocations) {
+        const results = new Array(mapLocations.length);
+        let nextIndex = 0;
+        const workerCount = Math.min(FORECAST_CONCURRENCY, mapLocations.length);
+
+        await Promise.all(
+          Array.from({ length: workerCount }, async () => {
+            while (nextIndex < mapLocations.length) {
+              const index = nextIndex;
+              nextIndex += 1;
+              const city = mapLocations[index];
+              try {
+                const { data, cached } = await loadForecastData(city);
+                results[index] = {
+                  status: "fulfilled",
+                  value: { city, forecast: normalizeForecast(city, data), cached },
+                };
+              } catch (reason) {
+                results[index] = { status: "rejected", reason };
+              }
+            }
+          }),
+        );
+
+        return results;
+      }
+
+      async function loadForecastData(city) {
+        const url = buildForecastUrl(city).toString();
+        const cacheKey = forecastCacheKey(url);
+        const cached = readForecastCache(cacheKey);
+
+        if (cached?.fresh) {
+          return { data: cached.data, cached: true };
+        }
+
+        try {
+          const response = await fetch(url, { cache: "default" });
+          if (!response.ok) throw new Error(`No se pudo cargar ${city.name}`);
+          const data = await response.json();
+          writeForecastCache(cacheKey, data);
+          return { data, cached: false };
+        } catch (error) {
+          if (cached?.data) {
+            return { data: cached.data, cached: true };
+          }
+          throw error;
+        }
+      }
+
+      function readForecastCache(cacheKey) {
+        try {
+          const raw = localStorage.getItem(cacheKey);
+          if (!raw) return null;
+          const cached = JSON.parse(raw);
+          if (!cached?.data) return null;
+          const expiresAt = Number(cached.expiresAt);
+          return {
+            data: cached.data,
+            fresh: Number.isFinite(expiresAt) && expiresAt > Date.now(),
+          };
+        } catch (error) {
+          localStorage.removeItem(cacheKey);
+          return null;
+        }
+      }
+
+      function writeForecastCache(cacheKey, data) {
+        const payload = JSON.stringify({
+          data,
+          cachedAt: Date.now(),
+          expiresAt: Date.now() + FORECAST_CACHE_TTL_MS,
+        });
+
+        try {
+          localStorage.setItem(cacheKey, payload);
+        } catch (error) {
+          pruneForecastCache(true);
+          try {
+            localStorage.setItem(cacheKey, payload);
+          } catch (retryError) {
+            // La app sigue funcionando sin cache si el navegador no permite guardar mas datos.
+          }
+        }
+      }
+
+      function pruneForecastCache(force = false) {
+        if (cachePruned && !force) return;
+        cachePruned = true;
+
+        try {
+          const keys = Object.keys(localStorage).filter((key) => key.startsWith(FORECAST_CACHE_PREFIX));
+          const now = Date.now();
+          keys.forEach((key) => {
+            try {
+              const cached = JSON.parse(localStorage.getItem(key) ?? "{}");
+              if (force || !cached?.expiresAt || Number(cached.expiresAt) < now) {
+                localStorage.removeItem(key);
+              }
+            } catch (error) {
+              localStorage.removeItem(key);
+            }
+          });
+        } catch (error) {
+          // localStorage puede estar bloqueado en navegacion privada.
+        }
+      }
+
+      function forecastCacheKey(url) {
+        return `${FORECAST_CACHE_PREFIX}${hashString(url)}`;
+      }
+
+      function hashString(value) {
+        let hash = 0;
+        for (let index = 0; index < value.length; index += 1) {
+          hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+        }
+        return hash.toString(36);
       }
 
       function getMapLocations() {
