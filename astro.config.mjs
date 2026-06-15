@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-import sitemap from '@astrojs/sitemap';
+import sitemap, { ChangeFreqEnum } from '@astrojs/sitemap';
 
 const SITE_URL = 'https://extretiempo.alon.one';
 const BUILD_TIME = new Date();
@@ -79,7 +79,7 @@ function priorityForPage(url) {
   const pathname = new URL(url).pathname;
 
   if (pagePriorities.has(pathname)) {
-    return pagePriorities.get(pathname);
+    return pagePriorities.get(pathname) ?? 0.8;
   }
 
   if (pathname.startsWith('/localidad/')) {
@@ -97,14 +97,14 @@ function changefreqForPage(url) {
   const pathname = new URL(url).pathname;
 
   if (pathname === '/' || pathname === '/hoy/' || pathname.startsWith('/localidad/')) {
-    return 'hourly';
+    return ChangeFreqEnum.HOURLY;
   }
 
   if (pathname === '/historico/' || pathname === '/clima-extremadura/') {
-    return 'weekly';
+    return ChangeFreqEnum.WEEKLY;
   }
 
-  return 'daily';
+  return ChangeFreqEnum.DAILY;
 }
 
 // https://astro.build/config
@@ -113,7 +113,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       customPages: sitemapPages,
-      changefreq: 'daily',
+      changefreq: ChangeFreqEnum.DAILY,
       priority: 0.8,
       lastmod: BUILD_TIME,
       serialize(item) {
