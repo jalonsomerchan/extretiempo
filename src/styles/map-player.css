@@ -167,3 +167,224 @@
 .map-clock {
   z-index: 730;
 }
+
+/* Reproductor tipo video */
+.map-panel--video {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 26px;
+  background: #111827;
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.22);
+}
+
+.map-panel--video .map-stage {
+  border-radius: 26px 26px 0 0;
+}
+
+.map-panel--video .weather-map {
+  border-radius: 26px 26px 0 0;
+}
+
+.map-panel--video .map-toolbar--player {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  align-items: stretch;
+  gap: 16px;
+  border: 0;
+  border-radius: 0 0 26px 26px;
+  background:
+    linear-gradient(135deg, rgba(255, 253, 248, 0.08), transparent 44%),
+    #111827;
+  box-shadow: none;
+  color: #fffdf8;
+  padding: 16px;
+}
+
+.map-player-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.map-player-main .play-button {
+  min-width: 116px;
+  border-color: rgba(255, 253, 248, 0.18);
+  background: #fffdf8;
+  color: #1f2520;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+}
+
+.map-player-main .play-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.map-panel--video .map-timeline {
+  color: #fffdf8;
+}
+
+.map-panel--video .map-time-row strong {
+  color: #fffdf8;
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
+}
+
+.map-panel--video .map-timeline .meta {
+  color: rgba(255, 253, 248, 0.7);
+}
+
+.map-panel--video .map-day-badge {
+  border-color: rgba(255, 253, 248, 0.18);
+  background: rgba(255, 253, 248, 0.1);
+  color: #f4d979;
+}
+
+.map-panel--video .timeline-range {
+  background:
+    linear-gradient(90deg, #f4d979 0 var(--progress), rgba(255, 253, 248, 0.18) var(--progress) 100%);
+}
+
+.map-panel--video .timeline-range::-webkit-slider-thumb {
+  border-color: #111827;
+  background: #f4d979;
+  box-shadow: 0 0 0 6px rgba(244, 217, 121, 0.14), 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+.map-panel--video .timeline-range::-moz-range-thumb {
+  border-color: #111827;
+  background: #f4d979;
+  box-shadow: 0 0 0 6px rgba(244, 217, 121, 0.14), 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+.map-player-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, auto);
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+}
+
+.speed-control,
+.map-player-clock {
+  border: 1px solid rgba(255, 253, 248, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 253, 248, 0.08);
+  padding: 10px;
+}
+
+.speed-control {
+  display: grid;
+  gap: 8px;
+}
+
+.speed-control > span,
+.map-player-clock > span:first-child {
+  color: rgba(255, 253, 248, 0.62);
+  font-size: 0.72rem;
+  font-weight: 760;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.speed-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(42px, 1fr));
+  gap: 6px;
+}
+
+.speed-buttons button {
+  border: 1px solid rgba(255, 253, 248, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.09);
+  color: #fffdf8;
+  padding: 8px 9px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.speed-buttons button[aria-pressed="true"] {
+  border-color: rgba(244, 217, 121, 0.65);
+  background: #f4d979;
+  color: #1f2520;
+}
+
+.speed-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.map-player-clock {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-width: 132px;
+}
+
+.map-player-clock strong {
+  color: #fffdf8;
+  font-size: 0.94rem;
+  line-height: 1.05;
+}
+
+.map-player-clock span:last-child {
+  color: #f4d979;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.map-panel--video .map-clock {
+  right: 14px;
+  left: auto;
+  text-align: right;
+}
+
+.map-panel--video .map-clock strong {
+  font-size: clamp(1.45rem, 4vw, 2.3rem);
+}
+
+@media (max-width: 920px) {
+  .map-panel--video .map-toolbar--player,
+  .map-player-main,
+  .map-player-side {
+    grid-template-columns: 1fr;
+  }
+
+  .map-player-main .play-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .map-panel--video {
+    border-radius: 20px;
+  }
+
+  .map-panel--video .map-stage,
+  .map-panel--video .weather-map {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .map-panel--video .map-toolbar--player {
+    border-radius: 0 0 20px 20px;
+    padding: 12px;
+  }
+
+  .map-player-side {
+    gap: 8px;
+  }
+
+  .speed-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .map-panel--video .map-clock {
+    right: 10px;
+    left: 10px;
+    text-align: left;
+  }
+}
