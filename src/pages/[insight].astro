@@ -1,0 +1,905 @@
+---
+import { insightPages, type InsightPage } from "../data/insightPages";
+import "../styles/global.css";
+
+export function getStaticPaths() {
+  return insightPages.map((page) => ({
+    params: { insight: page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props as { page: InsightPage };
+const relatedPages = insightPages.filter((item) => item.slug !== page.slug).slice(0, 7);
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{page.title} | ExtreTiempo</title>
+    <meta name="description" content={page.subtitle} />
+  </head>
+  <body>
+    <main class="app-shell insight-shell" data-insight-app={JSON.stringify(page)}>
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">{page.eyebrow}</span>
+            <span class="brand__name">{page.shortTitle}</span>
+            <span class="meta" data-status>Preparando datos</span>
+          </span>
+        </a>
+        <div class="site-header__actions">
+          <a class="link-button" href="/mapas/extremadura/">Mapa</a>
+          <button class="hamburger" type="button" aria-label="Abrir menu" aria-expanded="false" data-menu-button>
+            <span class="hamburger__lines" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        </div>
+        <nav class="menu-panel is-hidden" aria-label="Menu principal" data-menu-panel>
+          <a href="/">Inicio</a>
+          <a href="/hoy/">Hoy en Extremadura</a>
+          <a href="/rankings/">Rankings</a>
+          <a href="/fin-de-semana/">Fin de semana</a>
+          <a href="/lluvia/">Lluvia</a>
+          <a href="/calidad-del-aire/">Calidad del aire</a>
+          <a href="/polen/">Polen</a>
+          <a href="/campo/">Campo</a>
+          <a href="/rios/">Rios</a>
+        </nav>
+      </header>
+
+      <section class="insight-hero" aria-labelledby="insight-title">
+        <div>
+          <p class="eyebrow">{page.sourceLabel}</p>
+          <h1 id="insight-title">{page.title}</h1>
+          <p>{page.subtitle}</p>
+        </div>
+        <div class="insight-hero__actions">
+          <a class="chip" href="/mapas/extremadura/">Mapa Extremadura</a>
+          <a class="chip" href="/mapas/caceres/">Caceres</a>
+          <a class="chip" href="/mapas/badajoz/">Badajoz</a>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="summary-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="summary-title">Resumen rapido</h2>
+            <p class="meta" data-cache-note>Los datos se cachean para no saturar las APIs libres.</p>
+          </div>
+          <button class="link-button" type="button" data-refresh>Actualizar</button>
+        </div>
+        <div class="insight-board" data-board>
+          <article class="metric"><span class="label">Estado</span><strong>Cargando</strong></article>
+          <article class="metric"><span class="label">Fuente</span><strong>{page.sourceLabel}</strong></article>
+          <article class="metric"><span class="label">Region</span><strong>Extremadura</strong></article>
+          <article class="metric"><span class="label">Cache</span><strong>Activa</strong></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="results-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="results-title">Datos destacados</h2>
+            <p class="meta" data-results-caption>Calculando indicadores por localidad</p>
+          </div>
+        </div>
+        <div class="insight-results" data-results>
+          <p class="state">Cargando datos...</p>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="detail-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="detail-title">Detalle por localidad</h2>
+            <p class="meta">Ordenado segun el indicador principal de esta pagina</p>
+          </div>
+        </div>
+        <div class="panel list insight-list" data-list>
+          <p class="state">Esperando datos.</p>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="more-title">
+        <div class="section__header">
+          <div>
+            <h2 class="section__title" id="more-title">Mas paginas utiles</h2>
+            <p class="meta">Atajos nuevos de ExtreTiempo</p>
+          </div>
+        </div>
+        <div class="chips insight-links">
+          {relatedPages.map((item) => <a class="chip" href={`/${item.slug}/`}>{item.shortTitle}</a>)}
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegacion principal">
+      <a href="/">Inicio</a>
+      <a href="/mapas/extremadura/">Mapa</a>
+      <a href={`/${page.slug}/`} aria-current="page">{page.shortTitle}</a>
+    </nav>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Datos de APIs libres. Las paginas de riesgo son orientativas y no sustituyen avisos oficiales.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/hoy/">Hoy</a>
+        <a href="/rankings/">Rankings</a>
+        <a href="/calidad-del-aire/">Aire</a>
+        <a href="/historico/">Historico</a>
+        <a href="/clima-extremadura/">Clima</a>
+      </nav>
+    </footer>
+
+    <style>
+      .insight-shell {
+        width: min(100%, 1180px);
+      }
+
+      .insight-hero {
+        display: grid;
+        gap: 18px;
+        margin: 18px 0 22px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background:
+          radial-gradient(circle at 100% 0, rgba(39, 125, 168, 0.12), transparent 26rem),
+          linear-gradient(145deg, rgba(255, 253, 248, 0.96), rgba(229, 241, 233, 0.92));
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+
+      .insight-hero h1 {
+        margin: 0 0 8px;
+        font-size: clamp(2rem, 8vw, 4.4rem);
+        line-height: 0.94;
+        letter-spacing: -0.06em;
+      }
+
+      .insight-hero p {
+        max-width: 72ch;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .insight-hero__actions,
+      .insight-links {
+        align-content: start;
+      }
+
+      .insight-board,
+      .insight-results {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .insight-results {
+        grid-template-columns: 1fr;
+      }
+
+      .insight-card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        padding: 13px;
+      }
+
+      .insight-card strong {
+        display: block;
+        margin-top: 6px;
+        font-size: clamp(1.35rem, 7vw, 2.55rem);
+        line-height: 0.95;
+      }
+
+      .insight-card p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .insight-card--good {
+        border-color: rgba(47, 118, 88, 0.28);
+        background: linear-gradient(145deg, #fffdf8, var(--green-soft));
+      }
+
+      .insight-card--warn {
+        border-color: rgba(184, 138, 11, 0.32);
+        background: linear-gradient(145deg, #fffdf8, #fff4cc);
+      }
+
+      .insight-card--danger {
+        border-color: rgba(157, 61, 47, 0.32);
+        background: linear-gradient(145deg, #fffdf8, #ffe6df);
+      }
+
+      .insight-list .weather-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      .insight-list .row__metrics {
+        grid-template-columns: repeat(2, auto);
+      }
+
+      .metric strong small,
+      .insight-card strong small {
+        color: var(--muted);
+        font-size: 0.55em;
+        font-weight: 650;
+      }
+
+      @media (min-width: 760px) {
+        .insight-hero {
+          grid-template-columns: minmax(0, 1fr) 260px;
+          align-items: end;
+          padding: 24px;
+        }
+
+        .insight-board,
+        .insight-results {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+    </style>
+
+    <script>
+      import { locations } from "../data/locations";
+      import { riverPoints } from "../data/riverPoints";
+      import {
+        buildForecastUrl,
+        formatAmount,
+        formatDay,
+        formatPercent,
+        formatSpeed,
+        formatTemperature,
+        formatUv,
+        normalizeForecast,
+      } from "../lib/weather";
+      import {
+        airQualityCacheTtl,
+        aqiLabel,
+        average,
+        buildAirQualityUrl,
+        buildClimateUrl,
+        buildFloodUrl,
+        buildHistoricalUrl,
+        cachedJson,
+        climateCacheTtl,
+        forecastCacheTtl,
+        formatMetric,
+        historyCacheTtl,
+        lastCompleteDateRange,
+        mapLimit,
+        max,
+        min,
+        riskTone,
+        sum,
+      } from "../lib/insightWeather";
+
+      const app = document.querySelector("[data-insight-app]");
+      const page = JSON.parse(app?.getAttribute("data-insight-app") ?? "{}");
+      const status = document.querySelector("[data-status]");
+      const board = document.querySelector("[data-board]");
+      const results = document.querySelector("[data-results]");
+      const list = document.querySelector("[data-list]");
+      const caption = document.querySelector("[data-results-caption]");
+      const cacheNote = document.querySelector("[data-cache-note]");
+      const refreshButton = document.querySelector("[data-refresh]");
+      const menuButton = document.querySelector("[data-menu-button]");
+      const menuPanel = document.querySelector("[data-menu-panel]");
+
+      menuButton?.addEventListener("click", () => {
+        const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+        menuButton.setAttribute("aria-expanded", String(!isOpen));
+        menuPanel?.classList.toggle("is-hidden", isOpen);
+      });
+
+      refreshButton?.addEventListener("click", () => loadPage());
+      loadPage();
+
+      async function loadPage() {
+        setStatus("Cargando datos");
+        if (results) results.innerHTML = `<p class="state">Consultando ${page.sourceLabel}...</p>`;
+        if (list) list.innerHTML = `<p class="state">Preparando localidades...</p>`;
+
+        try {
+          if (["air", "pollen"].includes(page.kind)) {
+            await renderAirPage(page.kind);
+          } else if (page.kind === "history") {
+            await renderHistoryPage();
+          } else if (page.kind === "climate") {
+            await renderClimatePage();
+          } else if (page.kind === "rivers") {
+            await renderRiverPage();
+          } else {
+            const forecasts = await fetchForecasts(locations);
+            renderForecastPage(forecasts);
+          }
+        } catch (error) {
+          setStatus("Error al cargar");
+          if (results) results.innerHTML = `<p class="state">No se pudieron cargar los datos ahora.</p>`;
+          if (list) list.innerHTML = `<p class="state">Prueba a actualizar en unos minutos.</p>`;
+        }
+      }
+
+      async function fetchForecasts(pool) {
+        const loaded = await mapLimit(pool, 4, async (location) => {
+          try {
+            const response = await cachedJson(buildForecastUrl(location), forecastCacheTtl);
+            return { location, forecast: normalizeForecast(location, response.data), cache: response.cache };
+          } catch (error) {
+            return null;
+          }
+        });
+        return loaded.filter(Boolean);
+      }
+
+      function renderForecastPage(items) {
+        const forecasts = items.map((item) => item.forecast);
+        const cached = items.filter((item) => item.cache).length;
+        setStatus(`${forecasts.length} localidades`);
+        setCache(cached, items.length);
+        if (forecasts.length === 0) throw new Error("No forecasts");
+
+        if (page.kind === "today") return renderToday(forecasts);
+        if (page.kind === "weekend") return renderWeekend(forecasts);
+        if (page.kind === "rain") return renderRain(forecasts);
+        if (page.kind === "heat") return renderHeat(forecasts);
+        if (page.kind === "frost") return renderFrost(forecasts);
+        if (page.kind === "wind") return renderWind(forecasts);
+        if (page.kind === "field") return renderField(forecasts);
+        return renderRankings(forecasts);
+      }
+
+      function renderToday(forecasts) {
+        const hottest = maxBy(forecasts, (item) => item.today.max);
+        const rainiest = maxBy(forecasts, (item) => item.today.precipitationProbability);
+        const windiest = maxBy(forecasts, (item) => item.today.gustsMax);
+        const uv = maxBy(forecasts, (item) => item.today.uvMax);
+        renderBoard([
+          mini("Mas calor", hottest?.name, formatTemperature(hottest?.today.max ?? null)),
+          mini("Mas lluvia", rainiest?.name, formatPercent(rainiest?.today.precipitationProbability ?? null)),
+          mini("Mas viento", windiest?.name, formatSpeed(windiest?.today.gustsMax ?? null)),
+          mini("UV mas alto", uv?.name, formatUv(uv?.today.uvMax ?? null)),
+        ]);
+
+        const alerts = buildAlerts(forecasts);
+        captionText("Avisos practicos calculados desde los datos disponibles, no oficiales");
+        renderCards(alerts.length ? alerts.slice(0, 8) : [{ label: "Sin avisos", title: "Dia tranquilo", detail: "No hay senales fuertes de calor, helada, lluvia, viento o UV entre las localidades cargadas.", tone: "good" }]);
+        renderRows(forecasts.slice().sort((a, b) => numeric(b.today.max) - numeric(a.today.max)), (forecast) => ({
+          title: forecast.name,
+          detail: `${forecast.current.description}. Max ${formatTemperature(forecast.today.max)} / Min ${formatTemperature(forecast.today.min)}`,
+          metricA: `Lluvia ${formatPercent(forecast.today.precipitationProbability)}`,
+          metricB: `Viento ${formatSpeed(forecast.current.windSpeed)}`,
+          href: forecast.href,
+        }));
+      }
+
+      function renderRankings(forecasts) {
+        const hottest = maxBy(forecasts, (item) => item.current.temperature);
+        const coldest = minBy(forecasts, (item) => item.current.temperature);
+        const rain = maxBy(forecasts, (item) => next24Sum(item, "precipitation"));
+        const wind = maxBy(forecasts, (item) => item.today.gustsMax);
+        renderBoard([
+          mini("Mas calor ahora", hottest?.name, formatTemperature(hottest?.current.temperature ?? null)),
+          mini("Mas frio ahora", coldest?.name, formatTemperature(coldest?.current.temperature ?? null)),
+          mini("Mas lluvia 24h", rain?.name, formatAmount(next24Sum(rain, "precipitation"))),
+          mini("Racha maxima", wind?.name, formatSpeed(wind?.today.gustsMax ?? null)),
+        ]);
+        captionText("Top regional por indicadores de temperatura, lluvia, viento y UV");
+        renderCards([
+          rankCard("Temperatura maxima", hottest, formatTemperature(hottest?.current.temperature ?? null), "Temperatura actual mas alta"),
+          rankCard("Temperatura minima", coldest, formatTemperature(coldest?.current.temperature ?? null), "Temperatura actual mas baja"),
+          rankCard("Precipitacion 24h", rain, formatAmount(next24Sum(rain, "precipitation")), "Suma prevista en las proximas 24 horas"),
+          rankCard("UV maximo", maxBy(forecasts, (item) => item.today.uvMax), formatUv(maxBy(forecasts, (item) => item.today.uvMax)?.today.uvMax ?? null), "Indice UV maximo del dia"),
+        ]);
+        renderRows(forecasts.slice().sort((a, b) => numeric(b.current.temperature) - numeric(a.current.temperature)), (forecast) => ({
+          title: forecast.name,
+          detail: `${forecast.current.description}. Sensacion ${formatTemperature(forecast.current.apparentTemperature)}`,
+          metricA: formatTemperature(forecast.current.temperature),
+          metricB: `UV ${formatUv(forecast.today.uvMax)}`,
+          href: forecast.href,
+        }));
+      }
+
+      function renderWeekend(forecasts) {
+        const rows = forecasts.map((forecast) => {
+          const weekend = forecast.daily.filter((day) => [0, 6].includes(new Date(`${day.date}T12:00:00`).getDay())).slice(0, 2);
+          const avgTemp = average(weekend.map((day) => day.max));
+          const rain = sum(weekend.map((day) => day.precipitationSum));
+          const probability = max(weekend.map((day) => day.precipitationProbability));
+          return { forecast, weekend, avgTemp, rain, probability, score: numeric(avgTemp) - rain * 2 - numeric(probability) / 12 };
+        }).filter((item) => item.weekend.length > 0);
+        const best = maxBy(rows, (item) => item.score);
+        const wet = maxBy(rows, (item) => item.rain);
+        renderBoard([
+          mini("Mejor plan", best?.forecast.name, `${formatMetric(best?.avgTemp, "°")} / ${formatAmount(best?.rain)}`),
+          mini("Mas lluvia", wet?.forecast.name, formatAmount(wet?.rain)),
+          mini("Localidades", "Analizadas", String(rows.length)),
+          mini("Periodo", "Sabado y domingo", "48 h"),
+        ]);
+        captionText("Fin de semana calculado con los proximos sabados y domingos disponibles");
+        renderCards(rows.slice().sort((a, b) => b.score - a.score).slice(0, 8).map((item) => ({
+          label: item.forecast.name,
+          title: `${formatMetric(item.avgTemp, "°")} de media`,
+          detail: `${formatAmount(item.rain)} acumulados y probabilidad maxima ${formatPercent(item.probability)}`,
+          tone: numeric(item.rain) > 8 || numeric(item.probability) > 70 ? "warn" : "good",
+          href: item.forecast.href,
+        })));
+        renderRows(rows.sort((a, b) => b.score - a.score), (item) => ({
+          title: item.forecast.name,
+          detail: item.weekend.map((day) => `${formatDay(day.date)} ${formatTemperature(day.max)} ${formatAmount(day.precipitationSum)}`).join(" · "),
+          metricA: `${formatMetric(item.avgTemp, "°")}`,
+          metricB: `${formatAmount(item.rain)}`,
+          href: item.forecast.href,
+        }));
+      }
+
+      function renderRain(forecasts) {
+        const rows = forecasts.map((forecast) => ({
+          forecast,
+          amount: next24Sum(forecast, "precipitation"),
+          probability: max(nextHours(forecast, 24).map((hour) => hour.rainProbability)),
+        })).sort((a, b) => numeric(b.amount) - numeric(a.amount));
+        renderBoard([
+          mini("Mas lluvia 24h", rows[0]?.forecast.name, formatAmount(rows[0]?.amount)),
+          mini("Mayor probabilidad", maxBy(rows, (item) => item.probability)?.forecast.name, formatPercent(maxBy(rows, (item) => item.probability)?.probability ?? null)),
+          mini("Con lluvia", "Proximas 24h", String(rows.filter((item) => item.amount > 0.2).length)),
+          mini("Acumulado max", "Municipal", formatAmount(rows[0]?.amount)),
+        ]);
+        captionText("Ranking por precipitacion prevista en las proximas 24 horas");
+        renderCards(rows.slice(0, 8).map((item) => ({
+          label: item.forecast.name,
+          title: formatAmount(item.amount),
+          detail: `Probabilidad maxima ${formatPercent(item.probability)}. Estado: ${item.forecast.current.description}`,
+          tone: item.amount >= 10 ? "danger" : item.amount >= 2 ? "warn" : "neutral",
+          href: item.forecast.href,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.forecast.name,
+          detail: `${item.forecast.current.description}. Hoy ${formatAmount(item.forecast.today.precipitationSum)}`,
+          metricA: formatAmount(item.amount),
+          metricB: formatPercent(item.probability),
+          href: item.forecast.href,
+        }));
+      }
+
+      function renderHeat(forecasts) {
+        const rows = forecasts.map((forecast) => ({ forecast, value: forecast.today.max, apparent: forecast.current.apparentTemperature })).sort((a, b) => numeric(b.value) - numeric(a.value));
+        renderBoard([
+          mini("Maxima regional", rows[0]?.forecast.name, formatTemperature(rows[0]?.value ?? null)),
+          mini("Sensacion mas alta", maxBy(rows, (item) => item.apparent)?.forecast.name, formatTemperature(maxBy(rows, (item) => item.apparent)?.apparent ?? null)),
+          mini("Mas de 35°", "Localidades", String(rows.filter((item) => numeric(item.value) >= 35).length)),
+          mini("Mas de 40°", "Localidades", String(rows.filter((item) => numeric(item.value) >= 40).length)),
+        ]);
+        captionText("Calor previsto con maxima diaria y sensacion termica actual");
+        renderCards(rows.slice(0, 8).map((item) => ({
+          label: item.forecast.name,
+          title: formatTemperature(item.value ?? null),
+          detail: `Sensacion ${formatTemperature(item.apparent ?? null)}. UV max ${formatUv(item.forecast.today.uvMax)}`,
+          tone: numeric(item.value) >= 40 ? "danger" : numeric(item.value) >= 35 ? "warn" : "neutral",
+          href: item.forecast.href,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.forecast.name,
+          detail: `${item.forecast.current.description}. Sensacion ${formatTemperature(item.apparent ?? null)}`,
+          metricA: formatTemperature(item.value ?? null),
+          metricB: `UV ${formatUv(item.forecast.today.uvMax)}`,
+          href: item.forecast.href,
+        }));
+      }
+
+      function renderFrost(forecasts) {
+        const rows = forecasts.map((forecast) => ({ forecast, value: min(forecast.daily.map((day) => day.min)) })).sort((a, b) => numeric(a.value) - numeric(b.value));
+        renderBoard([
+          mini("Minima regional", rows[0]?.forecast.name, formatTemperature(rows[0]?.value ?? null)),
+          mini("Riesgo helada", "≤ 0°", String(rows.filter((item) => numeric(item.value) <= 0).length)),
+          mini("Frio sensible", "≤ 3°", String(rows.filter((item) => numeric(item.value) <= 3).length)),
+          mini("Dias analizados", "Prevision", "7"),
+        ]);
+        captionText("Riesgo orientativo usando minimas previstas en los proximos 7 dias");
+        renderCards(rows.slice(0, 8).map((item) => ({
+          label: item.forecast.name,
+          title: formatTemperature(item.value ?? null),
+          detail: item.value <= 0 ? "Riesgo de helada" : item.value <= 3 ? "Madrugada fria" : "Sin helada clara",
+          tone: numeric(item.value) <= 0 ? "danger" : numeric(item.value) <= 3 ? "warn" : "good",
+          href: item.forecast.href,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.forecast.name,
+          detail: `Minima mas baja de la semana. Hoy ${formatTemperature(item.forecast.today.min)}`,
+          metricA: formatTemperature(item.value ?? null),
+          metricB: `Viento ${formatSpeed(item.forecast.current.windSpeed)}`,
+          href: item.forecast.href,
+        }));
+      }
+
+      function renderWind(forecasts) {
+        const rows = forecasts.map((forecast) => ({ forecast, gust: forecast.today.gustsMax, wind: forecast.today.windMax })).sort((a, b) => numeric(b.gust) - numeric(a.gust));
+        renderBoard([
+          mini("Racha maxima", rows[0]?.forecast.name, formatSpeed(rows[0]?.gust ?? null)),
+          mini("Viento medio max", maxBy(rows, (item) => item.wind)?.forecast.name, formatSpeed(maxBy(rows, (item) => item.wind)?.wind ?? null)),
+          mini("Rachas > 50", "Localidades", String(rows.filter((item) => numeric(item.gust) >= 50).length)),
+          mini("Rachas > 70", "Localidades", String(rows.filter((item) => numeric(item.gust) >= 70).length)),
+        ]);
+        captionText("Ordenado por rachas maximas previstas hoy");
+        renderCards(rows.slice(0, 8).map((item) => ({
+          label: item.forecast.name,
+          title: formatSpeed(item.gust ?? null),
+          detail: `Viento max ${formatSpeed(item.wind ?? null)}. Actual ${formatSpeed(item.forecast.current.windSpeed)}`,
+          tone: numeric(item.gust) >= 70 ? "danger" : numeric(item.gust) >= 50 ? "warn" : "neutral",
+          href: item.forecast.href,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.forecast.name,
+          detail: `${item.forecast.current.description}. Racha maxima diaria`,
+          metricA: formatSpeed(item.gust ?? null),
+          metricB: formatSpeed(item.wind ?? null),
+          href: item.forecast.href,
+        }));
+      }
+
+      function renderField(forecasts) {
+        const rows = forecasts.map((forecast) => {
+          const rain7 = sum(forecast.daily.map((day) => day.precipitationSum));
+          const frost = min(forecast.daily.map((day) => day.min));
+          const wind = max(forecast.daily.map((day) => day.gustsMax));
+          return { forecast, rain7, frost, wind, irrigation: rain7 < 5 ? "Revisar riego" : rain7 < 15 ? "Riego moderado" : "Buen aporte" };
+        }).sort((a, b) => numeric(a.rain7) - numeric(b.rain7));
+        renderBoard([
+          mini("Menos lluvia", rows[0]?.forecast.name, formatAmount(rows[0]?.rain7)),
+          mini("Mas seco", rows[0]?.forecast.name, rows[0]?.irrigation),
+          mini("Helada campo", minBy(rows, (item) => item.frost)?.forecast.name, formatTemperature(minBy(rows, (item) => item.frost)?.frost ?? null)),
+          mini("Mas rachas", maxBy(rows, (item) => item.wind)?.forecast.name, formatSpeed(maxBy(rows, (item) => item.wind)?.wind ?? null)),
+        ]);
+        captionText("Indicadores practicos para huerto/campo: lluvia semanal, frio nocturno y viento");
+        renderCards(rows.slice(0, 8).map((item) => ({
+          label: item.forecast.name,
+          title: item.irrigation,
+          detail: `Lluvia 7 dias ${formatAmount(item.rain7)}. Minima ${formatTemperature(item.frost)}. Rachas ${formatSpeed(item.wind)}`,
+          tone: item.rain7 < 5 || item.frost <= 0 || item.wind >= 50 ? "warn" : "good",
+          href: item.forecast.href,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.forecast.name,
+          detail: item.irrigation,
+          metricA: formatAmount(item.rain7),
+          metricB: formatTemperature(item.frost),
+          href: item.forecast.href,
+        }));
+      }
+
+      async function renderAirPage(kind) {
+        const loaded = await mapLimit(locations, 4, async (location) => {
+          try {
+            const response = await cachedJson(buildAirQualityUrl(location), airQualityCacheTtl);
+            const data = response.data;
+            const current = data.current ?? {};
+            return { location, data, current, cache: response.cache };
+          } catch (error) {
+            return null;
+          }
+        });
+        const items = loaded.filter(Boolean);
+        const cached = items.filter((item) => item.cache).length;
+        setStatus(`${items.length} localidades`);
+        setCache(cached, items.length);
+
+        if (kind === "pollen") {
+          const rows = items.map((item) => {
+            const grass = number(item.current.grass_pollen);
+            const olive = number(item.current.olive_pollen);
+            const birch = number(item.current.birch_pollen);
+            const ragweed = number(item.current.ragweed_pollen);
+            const value = max([grass, olive, birch, ragweed]);
+            return { ...item, grass, olive, birch, ragweed, value };
+          }).sort((a, b) => numeric(b.value) - numeric(a.value));
+          renderBoard([
+            mini("Polen mas alto", rows[0]?.location.name, formatMetric(rows[0]?.value, " gr/m³", 1)),
+            mini("Gramineas", maxBy(rows, (item) => item.grass)?.location.name, formatMetric(maxBy(rows, (item) => item.grass)?.grass, "")),
+            mini("Olivo", maxBy(rows, (item) => item.olive)?.location.name, formatMetric(maxBy(rows, (item) => item.olive)?.olive, "")),
+            mini("Temporada", "Europa CAMS", "4 dias"),
+          ]);
+          captionText("El polen depende de disponibilidad estacional en Europa");
+          renderCards(rows.slice(0, 8).map((item) => ({
+            label: item.location.name,
+            title: formatMetric(item.value, " gr/m³", 1),
+            detail: `Gramineas ${formatMetric(item.grass)} · Olivo ${formatMetric(item.olive)} · Abedul ${formatMetric(item.birch)}`,
+            tone: numeric(item.value) >= 50 ? "danger" : numeric(item.value) >= 15 ? "warn" : "good",
+            href: `/localidad/${item.location.slug}/`,
+          })));
+          renderRows(rows, (item) => ({
+            title: item.location.name,
+            detail: `Gramineas ${formatMetric(item.grass)} · Olivo ${formatMetric(item.olive)} · Ambrosia ${formatMetric(item.ragweed)}`,
+            metricA: formatMetric(item.value, ""),
+            metricB: "gr/m³",
+            href: `/localidad/${item.location.slug}/`,
+          }));
+          return;
+        }
+
+        const rows = items.map((item) => ({
+          ...item,
+          aqi: number(item.current.european_aqi),
+          pm10: number(item.current.pm10),
+          pm25: number(item.current.pm2_5),
+          ozone: number(item.current.ozone),
+        })).sort((a, b) => numeric(b.aqi) - numeric(a.aqi));
+        renderBoard([
+          mini("Peor AQI", rows[0]?.location.name, formatMetric(rows[0]?.aqi)),
+          mini("Mejor AQI", rows[rows.length - 1]?.location.name, formatMetric(rows[rows.length - 1]?.aqi)),
+          mini("PM10 max", maxBy(rows, (item) => item.pm10)?.location.name, formatMetric(maxBy(rows, (item) => item.pm10)?.pm10, " µg/m³")),
+          mini("O3 max", maxBy(rows, (item) => item.ozone)?.location.name, formatMetric(maxBy(rows, (item) => item.ozone)?.ozone, " µg/m³")),
+        ]);
+        captionText("AQI europeo: cuanto mas bajo, mejor calidad del aire");
+        renderCards(rows.slice(0, 8).map((item) => ({
+          label: item.location.name,
+          title: `${formatMetric(item.aqi)} AQI`,
+          detail: `${aqiLabel(item.aqi)}. PM10 ${formatMetric(item.pm10, " µg/m³")} · PM2.5 ${formatMetric(item.pm25, " µg/m³")}`,
+          tone: riskTone(item.aqi, [40, 60]),
+          href: `/localidad/${item.location.slug}/`,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.location.name,
+          detail: `${aqiLabel(item.aqi)} · PM10 ${formatMetric(item.pm10, " µg/m³")} · O3 ${formatMetric(item.ozone, " µg/m³")}`,
+          metricA: `${formatMetric(item.aqi)}`,
+          metricB: "AQI",
+          href: `/localidad/${item.location.slug}/`,
+        }));
+      }
+
+      async function renderHistoryPage() {
+        const range = lastCompleteDateRange(30);
+        const loaded = await mapLimit(locations.slice(0, 12), 3, async (location) => {
+          try {
+            const response = await cachedJson(buildHistoricalUrl(location, range.startDate, range.endDate), historyCacheTtl);
+            const daily = response.data.daily ?? {};
+            return {
+              location,
+              cache: response.cache,
+              rain: sum(daily.precipitation_sum ?? []),
+              hottest: max(daily.temperature_2m_max ?? []),
+              coldest: min(daily.temperature_2m_min ?? []),
+              windy: max(daily.wind_gusts_10m_max ?? []),
+              heatDays: (daily.temperature_2m_max ?? []).filter((value) => numeric(value) >= 35).length,
+              frostDays: (daily.temperature_2m_min ?? []).filter((value) => numeric(value) <= 0).length,
+            };
+          } catch (error) {
+            return null;
+          }
+        });
+        const rows = loaded.filter(Boolean).sort((a, b) => numeric(b.rain) - numeric(a.rain));
+        setStatus(`${rows.length} historicos`);
+        setCache(rows.filter((item) => item.cache).length, rows.length);
+        renderBoard([
+          mini("Mas lluvia 30d", rows[0]?.location.name, formatAmount(rows[0]?.rain)),
+          mini("Maxima reciente", maxBy(rows, (item) => item.hottest)?.location.name, formatTemperature(maxBy(rows, (item) => item.hottest)?.hottest ?? null)),
+          mini("Minima reciente", minBy(rows, (item) => item.coldest)?.location.name, formatTemperature(minBy(rows, (item) => item.coldest)?.coldest ?? null)),
+          mini("Periodo", range.startDate, range.endDate),
+        ]);
+        captionText("Historico reciente con Open-Meteo Archive; los ultimos dias pueden tardar en consolidarse");
+        renderCards(rows.slice(0, 8).map((item) => ({
+          label: item.location.name,
+          title: formatAmount(item.rain),
+          detail: `Max ${formatTemperature(item.hottest)} · Min ${formatTemperature(item.coldest)} · ${item.heatDays} dias >35°`,
+          tone: item.rain >= 60 ? "warn" : "neutral",
+          href: `/localidad/${item.location.slug}/`,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.location.name,
+          detail: `${item.heatDays} dias de calor · ${item.frostDays} dias de helada · racha ${formatSpeed(item.windy)}`,
+          metricA: formatAmount(item.rain),
+          metricB: formatTemperature(item.hottest),
+          href: `/localidad/${item.location.slug}/`,
+        }));
+      }
+
+      async function renderClimatePage() {
+        const selected = locations.filter((location) => ["caceres", "badajoz", "merida", "plasencia"].includes(location.slug));
+        const loaded = await mapLimit(selected, 2, async (location) => {
+          try {
+            const response = await cachedJson(buildClimateUrl(location), climateCacheTtl);
+            const daily = response.data.daily ?? {};
+            const maxTemps = daily.temperature_2m_max ?? [];
+            const minTemps = daily.temperature_2m_min ?? [];
+            const rain = daily.precipitation_sum ?? [];
+            const years = Math.max(1, new Set((daily.time ?? []).map((day) => String(day).slice(0, 4))).size);
+            return {
+              location,
+              cache: response.cache,
+              avgMax: average(maxTemps),
+              heatDaysYear: maxTemps.filter((value) => numeric(value) >= 35).length / years,
+              frostDaysYear: minTemps.filter((value) => numeric(value) <= 0).length / years,
+              rainYear: sum(rain) / years,
+              soil: average(daily.soil_moisture_0_to_10cm_mean ?? []),
+            };
+          } catch (error) {
+            return null;
+          }
+        });
+        const rows = loaded.filter(Boolean).sort((a, b) => numeric(b.heatDaysYear) - numeric(a.heatDaysYear));
+        setStatus(`${rows.length} proyecciones`);
+        setCache(rows.filter((item) => item.cache).length, rows.length);
+        renderBoard([
+          mini("Mas dias >35°", rows[0]?.location.name, `${formatMetric(rows[0]?.heatDaysYear, " dias/año", 1)}`),
+          mini("Lluvia anual", maxBy(rows, (item) => item.rainYear)?.location.name, formatMetric(maxBy(rows, (item) => item.rainYear)?.rainYear, " mm/año")),
+          mini("Modelo", "EC_Earth3P_HR", "2035-2050"),
+          mini("Uso", "Orientativo", "CMIP6"),
+        ]);
+        captionText("Proyeccion climatica local: no es medicion ni prevision diaria, sirve para tendencias");
+        renderCards(rows.map((item) => ({
+          label: item.location.name,
+          title: `${formatMetric(item.heatDaysYear, " dias/año", 1)} >35°`,
+          detail: `Max media ${formatMetric(item.avgMax, "°", 1)} · lluvia ${formatMetric(item.rainYear, " mm/año")} · heladas ${formatMetric(item.frostDaysYear, " dias/año", 1)}`,
+          tone: item.heatDaysYear >= 55 ? "danger" : item.heatDaysYear >= 30 ? "warn" : "neutral",
+          href: `/localidad/${item.location.slug}/`,
+        })));
+        renderRows(rows, (item) => ({
+          title: item.location.name,
+          detail: `2035-2050 · humedad suelo media ${formatMetric(item.soil, "", 2)}`,
+          metricA: `${formatMetric(item.heatDaysYear, " d/a", 1)}`,
+          metricB: formatMetric(item.rainYear, " mm"),
+          href: `/localidad/${item.location.slug}/`,
+        }));
+      }
+
+      async function renderRiverPage() {
+        const loaded = await mapLimit(riverPoints, 3, async (location) => {
+          try {
+            const response = await cachedJson(buildFloodUrl(location), historyCacheTtl);
+            const daily = response.data.daily ?? {};
+            return {
+              location,
+              cache: response.cache,
+              current: number(daily.river_discharge?.[0]),
+              max30: max(daily.river_discharge_max ?? daily.river_discharge ?? []),
+              p75: max(daily.river_discharge_p75 ?? []),
+            };
+          } catch (error) {
+            return null;
+          }
+        });
+        const rows = loaded.filter(Boolean).sort((a, b) => numeric(b.max30) - numeric(a.max30));
+        setStatus(`${rows.length} puntos fluviales`);
+        setCache(rows.filter((item) => item.cache).length, rows.length);
+        renderBoard([
+          mini("Mayor caudal", rows[0]?.location.name, formatMetric(rows[0]?.max30, " m³/s", 1)),
+          mini("Caudal inicial", rows[0]?.location.name, formatMetric(rows[0]?.current, " m³/s", 1)),
+          mini("Horizonte", "Forecast", "30 dias"),
+          mini("Resolucion", "GloFAS", "~5 km"),
+        ]);
+        captionText("Estimacion fluvial: la celda mas cercana puede no coincidir exactamente con el cauce local");
+        renderCards(rows.map((item) => ({
+          label: item.location.name,
+          title: formatMetric(item.max30, " m³/s", 1),
+          detail: `Caudal inicial ${formatMetric(item.current, " m³/s", 1)} · p75 ${formatMetric(item.p75, " m³/s", 1)}`,
+          tone: item.max30 >= numeric(item.p75) * 1.4 && item.p75 ? "warn" : "neutral",
+          href: "/rios/",
+        })));
+        renderRows(rows, (item) => ({
+          title: item.location.name,
+          detail: "Caudal simulado del rio mas relevante en la celda cercana",
+          metricA: formatMetric(item.max30, " m³/s", 1),
+          metricB: formatMetric(item.current, " m³/s", 1),
+          href: "/rios/",
+        }));
+      }
+
+      function buildAlerts(forecasts) {
+        const alerts = [];
+        forecasts.forEach((forecast) => {
+          if (numeric(forecast.today.max) >= 38) alerts.push({ label: forecast.name, title: "Calor fuerte", detail: `Maxima ${formatTemperature(forecast.today.max)} y UV ${formatUv(forecast.today.uvMax)}`, tone: "danger", href: forecast.href });
+          if (numeric(forecast.today.min) <= 1) alerts.push({ label: forecast.name, title: "Riesgo de helada", detail: `Minima ${formatTemperature(forecast.today.min)}`, tone: "warn", href: forecast.href });
+          if (numeric(forecast.today.precipitationProbability) >= 70) alerts.push({ label: forecast.name, title: "Lluvia probable", detail: `Probabilidad ${formatPercent(forecast.today.precipitationProbability)}`, tone: "warn", href: forecast.href });
+          if (numeric(forecast.today.gustsMax) >= 55) alerts.push({ label: forecast.name, title: "Rachas fuertes", detail: `Rachas ${formatSpeed(forecast.today.gustsMax)}`, tone: "warn", href: forecast.href });
+          if (numeric(forecast.today.uvMax) >= 8) alerts.push({ label: forecast.name, title: "UV muy alto", detail: `Indice ${formatUv(forecast.today.uvMax)}`, tone: "danger", href: forecast.href });
+        });
+        return alerts;
+      }
+
+      function renderBoard(items) {
+        if (!board) return;
+        board.innerHTML = items.map((item) => `<article class="metric"><span class="label">${item.label}</span><strong>${item.value}</strong><p class="meta">${item.name ?? ""}</p></article>`).join("");
+      }
+
+      function renderCards(cards) {
+        if (!results) return;
+        results.innerHTML = cards.map((card) => `
+          <a class="insight-card insight-card--${card.tone ?? "neutral"}" href="${card.href ?? "#"}">
+            <span class="label">${card.label}</span>
+            <strong>${card.title}</strong>
+            <p>${card.detail}</p>
+          </a>
+        `).join("");
+      }
+
+      function renderRows(rows, mapper) {
+        if (!list) return;
+        list.innerHTML = rows.map((row) => {
+          const item = mapper(row);
+          return `
+            <a class="weather-row" href="${item.href}">
+              <span>
+                <span class="row__title">${item.title}</span>
+                <span class="row__details"><span>${item.detail}</span></span>
+              </span>
+              <span class="row__metrics"><span>${item.metricA}</span><span>${item.metricB}</span></span>
+            </a>
+          `;
+        }).join("");
+      }
+
+      function captionText(text) {
+        if (caption) caption.textContent = text;
+      }
+
+      function setStatus(text) {
+        if (status) status.textContent = text;
+      }
+
+      function setCache(cached, total) {
+        if (cacheNote) cacheNote.textContent = cached > 0 ? `${cached} de ${total} respuestas servidas desde cache local.` : `Datos nuevos cargados y guardados en cache local.`;
+      }
+
+      function mini(label, name, value) {
+        return { label, name, value: value ?? "--" };
+      }
+
+      function rankCard(label, forecast, value, detail) {
+        return { label, title: value ?? "--", detail: `${forecast?.name ?? "Sin datos"}. ${detail}`, tone: "neutral", href: forecast?.href ?? "#" };
+      }
+
+      function nextHours(forecast, hours) {
+        const now = Date.now();
+        return forecast.hourly.filter((hour) => new Date(hour.time).getTime() >= now).slice(0, hours);
+      }
+
+      function next24Sum(forecast, field) {
+        if (!forecast) return null;
+        return sum(nextHours(forecast, 24).map((hour) => hour[field]));
+      }
+
+      function maxBy(items, getter) {
+        return items.reduce((best, item) => {
+          const value = getter(item);
+          if (value === null || value === undefined || !Number.isFinite(Number(value))) return best;
+          if (!best) return item;
+          return Number(value) > Number(getter(best)) ? item : best;
+        }, null);
+      }
+
+      function minBy(items, getter) {
+        return items.reduce((best, item) => {
+          const value = getter(item);
+          if (value === null || value === undefined || !Number.isFinite(Number(value))) return best;
+          if (!best) return item;
+          return Number(value) < Number(getter(best)) ? item : best;
+        }, null);
+      }
+
+      function numeric(value) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function number(value) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+      }
+    </script>
+  </body>
+</html>
