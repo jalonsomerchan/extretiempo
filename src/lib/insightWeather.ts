@@ -73,8 +73,10 @@ export function buildClimateUrl(location: Pick<Location, "latitude" | "longitude
     daily: [
       "temperature_2m_max",
       "temperature_2m_min",
+      "temperature_2m_mean",
       "precipitation_sum",
-      "reference_evapotranspiration",
+      "soil_moisture_0_to_10cm_mean",
+      "shortwave_radiation_sum",
     ].join(","),
     wind_speed_unit: "kmh",
     precipitation_unit: "mm",
