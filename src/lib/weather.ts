@@ -64,6 +64,10 @@ type OpenMeteoResponse = {
   daily?: Record<string, Array<number | string>>;
 };
 
+type WeatherIconVariant = "day" | "night";
+
+const openWeatherIconBaseUrl = "https://openweathermap.org/payload/api/media/file";
+
 export const forecastFields = {
   current: [
     "temperature_2m",
@@ -86,6 +90,7 @@ export const forecastFields = {
     "cloud_cover",
     "wind_speed_10m",
     "wind_gusts_10m",
+    "is_day",
   ],
   daily: [
     "weather_code",
@@ -180,8 +185,15 @@ export function describeWeatherCode(code: number | null) {
   return descriptions[code] ?? "Tiempo variable";
 }
 
-export function weatherImageForCode(code: number | null) {
-  return `/weather/open-meteo-${weatherStateForCode(code)}.svg`;
+export function weatherImageForCode(code: number | null, variant: WeatherIconVariant = "day") {
+  const icon = openWeatherIconForCode(code, variant);
+  return `${openWeatherIconBaseUrl}/${icon}@2x.png`;
+}
+
+export function openWeatherIconForCode(code: number | null, variant: WeatherIconVariant = "day") {
+  const suffix = variant === "night" ? "n" : "d";
+  const icon = openWeatherIconBaseForCode(code);
+  return `${icon}${suffix}`;
 }
 
 export function weatherStateForCode(code: number | null) {
@@ -199,6 +211,7 @@ export function weatherStateForCode(code: number | null) {
 
 export function normalizeForecast(location: Location, data: OpenMeteoResponse): WeatherSnapshot {
   const currentCode = toNumber(data.current?.weather_code);
+  const currentIconVariant = weatherIconVariantFromIsDay(data.current?.is_day);
 
   return {
     slug: location.slug,
@@ -217,7 +230,7 @@ export function normalizeForecast(location: Location, data: OpenMeteoResponse): 
       windDirection: toNumber(data.current?.wind_direction_10m),
       windGusts: toNumber(data.current?.wind_gusts_10m),
       description: describeWeatherCode(currentCode),
-      image: weatherImageForCode(currentCode),
+      image: weatherImageForCode(currentCode, currentIconVariant),
     },
     today: getDailyPoint(data, 0),
     hourly: getHourlyPoints(data),
@@ -280,6 +293,10 @@ function getHourlyPoints(data: OpenMeteoResponse): HourlyPoint[] {
   return times
     .map((time, index) => {
       const weatherCode = toNumber(data.hourly?.weather_code?.[index]);
+      const variant = weatherIconVariantFromIsDay(
+        data.hourly?.is_day?.[index],
+        weatherIconVariantFromHour(String(time)),
+      );
       return {
         time: String(time),
         temperature: toNumber(data.hourly?.temperature_2m?.[index]),
@@ -289,7 +306,7 @@ function getHourlyPoints(data: OpenMeteoResponse): HourlyPoint[] {
         windSpeed: toNumber(data.hourly?.wind_speed_10m?.[index]),
         windGusts: toNumber(data.hourly?.wind_gusts_10m?.[index]),
         description: describeWeatherCode(weatherCode),
-        image: weatherImageForCode(weatherCode),
+        image: weatherImageForCode(weatherCode, variant),
       };
     });
 }
@@ -315,6 +332,35 @@ function getDailyPoint(data: OpenMeteoResponse, index: number, fallbackDate = ""
     gustsMax: toNumber(data.daily?.wind_gusts_10m_max?.[index]),
     uvMax: toNumber(data.daily?.uv_index_max?.[index]),
   };
+}
+
+function openWeatherIconBaseForCode(code: number | null) {
+  if (code === null) return "04";
+  if (code === 0) return "01";
+  if (code === 1) return "02";
+  if (code === 2) return "03";
+  if (code === 3) return "04";
+  if (code === 45 || code === 48) return "50";
+  if (code >= 51 && code <= 57) return "09";
+  if (code === 66 || code === 67) return "13";
+  if (code >= 61 && code <= 65) return "10";
+  if (code >= 80 && code <= 82) return "09";
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "13";
+  if (code >= 95) return "11";
+  return "04";
+}
+
+function weatherIconVariantFromIsDay(value: number | string | undefined, fallback: WeatherIconVariant = "day") {
+  const isDay = toNumber(value);
+  if (isDay === 0) return "night";
+  if (isDay === 1) return "day";
+  return fallback;
+}
+
+function weatherIconVariantFromHour(value: string): WeatherIconVariant {
+  const hour = Number(value.slice(11, 13));
+  if (!Number.isFinite(hour)) return "day";
+  return hour >= 7 && hour < 21 ? "day" : "night";
 }
 
 function toNumber(value: number | string | undefined) {
