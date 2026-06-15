@@ -1,0 +1,159 @@
+---
+import { locations } from "../data/locations";
+import "../styles/global.css";
+
+const siteUrl = "https://extretiempo.alon.one";
+const title = "El tiempo por municipios de Extremadura | ExtreTiempo";
+const description = "Listado de municipios de Extremadura con previsión por horas, lluvia, viento, temperatura, mapas y favoritos en ExtreTiempo.";
+const caceresLocations = locations.filter((location) => location.province === "Caceres");
+const badajozLocations = locations.filter((location) => location.province === "Badajoz");
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: title,
+  description,
+  url: `${siteUrl}/municipios/`,
+  isPartOf: {
+    "@type": "WebSite",
+    name: "ExtreTiempo",
+    url: siteUrl,
+  },
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: locations.map((location, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: `El tiempo en ${location.name}`,
+      url: `${siteUrl}/localidad/${location.slug}/`,
+    })),
+  },
+};
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={`${siteUrl}/municipios/`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExtreTiempo" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={`${siteUrl}/municipios/`} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <main class="app-shell insight-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Directorio meteorológico</span>
+            <span class="brand__name">Municipios</span>
+            <span class="meta">Extremadura por localidad</span>
+          </span>
+        </a>
+        <nav class="site-header__actions" aria-label="Enlaces principales">
+          <a class="link-button" href="/tiempo-en-extremadura/">Guía regional</a>
+          <a class="link-button" href="/mapas/extremadura/">Mapa</a>
+        </nav>
+      </header>
+
+      <section class="insight-hero" aria-labelledby="municipios-title">
+        <div>
+          <p class="eyebrow">Tiempo local en Extremadura</p>
+          <h1 id="municipios-title">El tiempo por municipios</h1>
+          <p>
+            Consulta previsión por horas, próximos días, lluvia, viento, sensación térmica y mapas meteorológicos para municipios de Cáceres y Badajoz.
+          </p>
+        </div>
+        <div class="insight-hero__actions">
+          <a class="chip" href="/provincia/caceres/">Provincia de Cáceres</a>
+          <a class="chip" href="/provincia/badajoz/">Provincia de Badajoz</a>
+          <a class="chip" href="/rankings/">Rankings regionales</a>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="caceres-title">
+        <div class="section__header">
+          <div>
+            <p class="eyebrow">Provincia de Cáceres</p>
+            <h2 class="section__title" id="caceres-title">Municipios de Cáceres</h2>
+            <p class="meta">Norte de Extremadura, zonas de sierra, valles, llanos y Vegas del Alagón.</p>
+          </div>
+          <a class="chip" href="/mapas/caceres/">Mapa de Cáceres</a>
+        </div>
+        <div class="quick-grid">
+          {caceresLocations.map((location) => (
+            <a class="quick-card" href={`/localidad/${location.slug}/`}>
+              <span class="brand__mark">{location.name.slice(0, 2).toUpperCase()}</span>
+              <span class="quick-card__main">
+                <span class="quick-card__title">El tiempo en {location.name}</span>
+                <span class="meta">Previsión municipal · Cáceres</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="badajoz-title">
+        <div class="section__header">
+          <div>
+            <p class="eyebrow">Provincia de Badajoz</p>
+            <h2 class="section__title" id="badajoz-title">Municipios de Badajoz</h2>
+            <p class="meta">Vegas del Guadiana, Tierra de Barros, Campiña Sur, La Serena y suroeste extremeño.</p>
+          </div>
+          <a class="chip" href="/mapas/badajoz/">Mapa de Badajoz</a>
+        </div>
+        <div class="quick-grid">
+          {badajozLocations.map((location) => (
+            <a class="quick-card" href={`/localidad/${location.slug}/`}>
+              <span class="brand__mark">{location.name.slice(0, 2).toUpperCase()}</span>
+              <span class="quick-card__main">
+                <span class="quick-card__title">El tiempo en {location.name}</span>
+                <span class="meta">Previsión municipal · Badajoz</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="temas-title">
+        <div class="section__header">
+          <div>
+            <p class="eyebrow">Búsquedas frecuentes</p>
+            <h2 class="section__title" id="temas-title">Consultas útiles para hoy</h2>
+          </div>
+        </div>
+        <div class="chips">
+          <a class="chip" href="/hoy/">Hoy en Extremadura</a>
+          <a class="chip" href="/lluvia/">Dónde va a llover</a>
+          <a class="chip" href="/calor/">Dónde hará más calor</a>
+          <a class="chip" href="/viento/">Viento y rachas</a>
+          <a class="chip" href="/heladas/">Riesgo de heladas</a>
+          <a class="chip" href="/polen/">Polen</a>
+          <a class="chip" href="/calidad-del-aire/">Calidad del aire</a>
+          <a class="chip" href="/campo/">Tiempo para el campo</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Directorio de previsión meteorológica municipal con datos abiertos de Open-Meteo.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/tiempo-en-extremadura/">Tiempo en Extremadura</a>
+        <a href="/mapas/extremadura/">Mapa Extremadura</a>
+      </nav>
+    </footer>
+  </body>
+</html>
