@@ -56,6 +56,11 @@ const staticPages = [
   '/mapas/badajoz/',
   '/mapas/espana/',
   '/mapas/europa/',
+  '/acerca-de/',
+  '/mas-informacion/',
+  '/contacto/',
+  '/privacidad/',
+  '/aviso-legal/',
 ];
 
 const sitemapPages = [
