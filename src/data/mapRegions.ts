@@ -1,41 +1,106 @@
 import type { Location } from "./locations";
 
+export type MapRegionSlug = "extremadura" | "favoritos" | "caceres" | "badajoz" | "espana" | "europa";
+
 export type MapRegion = {
-  slug: "extremadura" | "espana" | "europa";
+  slug: MapRegionSlug;
   title: string;
+  shortTitle: string;
   subtitle: string;
   center: [number, number];
   zoom: number;
   cities: Location[];
+  source?: "static" | "favorites";
 };
+
+const caceresCities: Location[] = [
+  { slug: "caceres", name: "Caceres", province: "Caceres", latitude: 39.4753, longitude: -6.3724 },
+  { slug: "plasencia", name: "Plasencia", province: "Caceres", latitude: 40.0312, longitude: -6.0885 },
+  {
+    slug: "navalmoral-de-la-mata",
+    name: "Navalmoral de la Mata",
+    province: "Caceres",
+    latitude: 39.8916,
+    longitude: -5.5406,
+  },
+  { slug: "trujillo", name: "Trujillo", province: "Caceres", latitude: 39.4579, longitude: -5.882 },
+  { slug: "coria", name: "Coria", province: "Caceres", latitude: 39.9841, longitude: -6.536 },
+  { slug: "miajadas", name: "Miajadas", province: "Caceres", latitude: 39.1513, longitude: -5.9084 },
+  { slug: "jaraiz-de-la-vera", name: "Jaraiz de la Vera", province: "Caceres", latitude: 40.0605, longitude: -5.7543 },
+  { slug: "moraleja", name: "Moraleja", province: "Caceres", latitude: 40.0668, longitude: -6.6596 },
+  { slug: "valencia-de-alcantara", name: "Valencia de Alcantara", province: "Caceres", latitude: 39.4115, longitude: -7.2444 },
+  { slug: "logrosan", name: "Logrosan", province: "Caceres", latitude: 39.3365, longitude: -5.4928 },
+];
+
+const badajozCities: Location[] = [
+  { slug: "badajoz", name: "Badajoz", province: "Badajoz", latitude: 38.8786, longitude: -6.9703 },
+  { slug: "merida", name: "Merida", province: "Badajoz", latitude: 38.9161, longitude: -6.3437 },
+  { slug: "don-benito", name: "Don Benito", province: "Badajoz", latitude: 38.9563, longitude: -5.8616 },
+  { slug: "zafra", name: "Zafra", province: "Badajoz", latitude: 38.4254, longitude: -6.4173 },
+  { slug: "almendralejo", name: "Almendralejo", province: "Badajoz", latitude: 38.6832, longitude: -6.4075 },
+  {
+    slug: "villanueva-de-la-serena",
+    name: "Villanueva de la Serena",
+    province: "Badajoz",
+    latitude: 38.9739,
+    longitude: -5.8008,
+  },
+  { slug: "montijo", name: "Montijo", province: "Badajoz", latitude: 38.9084, longitude: -6.6179 },
+  { slug: "olivenza", name: "Olivenza", province: "Badajoz", latitude: 38.6844, longitude: -7.1009 },
+  {
+    slug: "jerez-de-los-caballeros",
+    name: "Jerez de los Caballeros",
+    province: "Badajoz",
+    latitude: 38.3206,
+    longitude: -6.7724,
+  },
+  { slug: "llerena", name: "Llerena", province: "Badajoz", latitude: 38.2333, longitude: -6.0159 },
+];
+
+const extremaduraCities = [...badajozCities, ...caceresCities];
 
 export const mapRegions: MapRegion[] = [
   {
     slug: "extremadura",
     title: "Mapa de Extremadura",
-    subtitle: "Tiempo actual y evolucion horaria en ciudades extremenas",
+    shortTitle: "Extremadura",
+    subtitle: "Animacion horaria con temperatura, lluvia, viento y ciclos de dia/noche en municipios extremenos",
     center: [39.15, -6.25],
     zoom: 8,
-    cities: [
-      { slug: "badajoz", name: "Badajoz", province: "Badajoz", latitude: 38.8786, longitude: -6.9703 },
-      { slug: "caceres", name: "Caceres", province: "Caceres", latitude: 39.4753, longitude: -6.3724 },
-      { slug: "merida", name: "Merida", province: "Badajoz", latitude: 38.9161, longitude: -6.3437 },
-      { slug: "plasencia", name: "Plasencia", province: "Caceres", latitude: 40.0312, longitude: -6.0885 },
-      { slug: "don-benito", name: "Don Benito", province: "Badajoz", latitude: 38.9563, longitude: -5.8616 },
-      { slug: "zafra", name: "Zafra", province: "Badajoz", latitude: 38.4254, longitude: -6.4173 },
-      {
-        slug: "navalmoral-de-la-mata",
-        name: "Navalmoral de la Mata",
-        province: "Caceres",
-        latitude: 39.8916,
-        longitude: -5.5406,
-      },
-      { slug: "almendralejo", name: "Almendralejo", province: "Badajoz", latitude: 38.6832, longitude: -6.4075 },
-    ],
+    cities: extremaduraCities,
+  },
+  {
+    slug: "favoritos",
+    title: "Mapa de tus favoritos",
+    shortTitle: "Favoritos",
+    subtitle: "Tus municipios guardados se muestran en un mapa animado propio, usando solo este navegador",
+    center: [39.15, -6.25],
+    zoom: 7,
+    source: "favorites",
+    cities: [],
+  },
+  {
+    slug: "caceres",
+    title: "Mapa de la provincia de Caceres",
+    shortTitle: "Caceres",
+    subtitle: "Evolucion meteorologica por horas en localidades de la provincia de Caceres",
+    center: [39.73, -6.1],
+    zoom: 8,
+    cities: caceresCities,
+  },
+  {
+    slug: "badajoz",
+    title: "Mapa de la provincia de Badajoz",
+    shortTitle: "Badajoz",
+    subtitle: "Evolucion meteorologica por horas en localidades de la provincia de Badajoz",
+    center: [38.75, -6.35],
+    zoom: 8,
+    cities: badajozCities,
   },
   {
     slug: "espana",
     title: "Mapa de Espana",
+    shortTitle: "Espana",
     subtitle: "Principales ciudades con temperatura, maximas, minimas y estado del cielo",
     center: [40.1, -3.7],
     zoom: 5,
@@ -57,6 +122,7 @@ export const mapRegions: MapRegion[] = [
   {
     slug: "europa",
     title: "Mapa de Europa",
+    shortTitle: "Europa",
     subtitle: "Capitales y grandes ciudades europeas con evolucion horaria",
     center: [50.5, 10.5],
     zoom: 4,
