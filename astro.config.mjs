@@ -5,7 +5,6 @@ import sitemap from '@astrojs/sitemap';
 
 const SITE_URL = 'https://extretiempo.alon.one';
 const BUILD_TIME = new Date();
-const BUILD_TIME_ISO = BUILD_TIME.toISOString();
 
 const locationSlugs = [
   'badajoz',
@@ -120,7 +119,6 @@ export default defineConfig({
       serialize(item) {
         item.changefreq = changefreqForPage(item.url);
         item.priority = priorityForPage(item.url);
-        item.lastmod = BUILD_TIME_ISO;
         return item;
       },
     }),
