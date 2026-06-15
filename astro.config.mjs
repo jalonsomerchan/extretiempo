@@ -5,7 +5,6 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://jalonsomerchan.github.io",
-  base: "/extretiempo",
+  site: "http://extretiempo.alon.one",
   integrations: [sitemap()]
 });
