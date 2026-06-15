@@ -1,0 +1,143 @@
+---
+import "../styles/global.css";
+import "../styles/static-page.css";
+
+const siteUrl = "https://extretiempo.alon.one";
+const title = "Contacto | ExtreTiempo";
+const description = "Contacto de ExtreTiempo para avisar de errores, sugerir nuevas localidades o proponer mejoras en la información meteorológica de Extremadura.";
+const canonical = `${siteUrl}/contacto/`;
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ContactPage",
+      name: title,
+      description,
+      url: canonical,
+      inLanguage: "es-ES",
+      isPartOf: { "@type": "WebSite", name: "ExtreTiempo", url: siteUrl },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Contacto", item: canonical },
+      ],
+    },
+  ],
+};
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExtreTiempo" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <main class="static-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Contacto</span>
+            <span class="brand__name">ExtreTiempo</span>
+            <span class="meta">Sugerencias y errores</span>
+          </span>
+        </a>
+        <nav class="site-header__actions" aria-label="Enlaces principales">
+          <a class="link-button" href="/municipios/">Municipios</a>
+          <a class="link-button" href="/mas-informacion/">Más información</a>
+        </nav>
+      </header>
+
+      <section class="static-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Contacto</p>
+          <h1 id="page-title">Ayuda a mejorar ExtreTiempo</h1>
+          <p>
+            Puedes contactar para avisar de errores, pedir nuevas localidades, proponer páginas útiles o señalar datos que no se entiendan bien.
+          </p>
+        </div>
+        <aside class="static-hero__aside" aria-label="Resumen">
+          <div class="static-note">
+            <strong>Mejoras del sitio</strong>
+            <span>Localidades, diseño, mapas, datos, errores de texto o nuevas páginas meteorológicas.</span>
+          </div>
+          <div class="static-note">
+            <strong>No emergencias</strong>
+            <span>Para situaciones de riesgo usa siempre servicios y fuentes oficiales.</span>
+          </div>
+        </aside>
+      </section>
+
+      <div class="static-layout">
+        <article class="static-content">
+          <section class="static-card">
+            <h2>Qué puedes comunicar</h2>
+            <ul class="static-list">
+              <li>Una localidad extremeña que falte o tenga datos incorrectos.</li>
+              <li>Un fallo de visualización en móvil, escritorio o mapas.</li>
+              <li>Una sugerencia para nuevas páginas: nieve, tormentas, avisos, embalses, ferias o campo.</li>
+              <li>Una explicación meteorológica que debería ser más clara.</li>
+            </ul>
+          </section>
+
+          <section class="static-card">
+            <h2>Canal de contacto</h2>
+            <p>
+              ExtreTiempo es un proyecto web independiente. Para enviar comentarios sobre el sitio, utiliza la web principal del responsable del proyecto.
+            </p>
+            <div class="static-contact-card">
+              <div class="static-contact-row">
+                <strong>Web principal</strong>
+                <a href="https://alon.one/" target="_blank" rel="noreferrer">alon.one</a>
+                <span class="meta">Incluye en tu mensaje la URL de ExtreTiempo donde has visto el problema.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="static-card">
+            <h2>Antes de escribir</h2>
+            <p>
+              Si el aviso tiene relación con una previsión concreta, indica localidad, fecha, hora aproximada y qué dato parecía incorrecto. Así será más fácil revisar si se trata de un problema del sitio, de la API o de interpretación.
+            </p>
+          </section>
+        </article>
+
+        <nav class="static-aside" aria-label="Páginas informativas">
+          <a href="/acerca-de/">Acerca de</a>
+          <a href="/mas-informacion/">Más información</a>
+          <a href="/contacto/" aria-current="page">Contacto</a>
+          <a href="/privacidad/">Privacidad</a>
+          <a href="/aviso-legal/">Aviso legal</a>
+        </nav>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Contacto para mejorar la guía meteorológica regional de Extremadura.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/acerca-de/">Acerca de</a>
+        <a href="/mas-informacion/">Más información</a>
+        <a href="/privacidad/">Privacidad</a>
+      </nav>
+    </footer>
+  </body>
+</html>
