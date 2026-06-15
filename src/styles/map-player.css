@@ -161,7 +161,6 @@
 }
 
 .weather-map .leaflet-control-container {
-  position: relative;
   z-index: 720;
 }
 
