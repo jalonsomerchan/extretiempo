@@ -3,6 +3,7 @@ import { mapRegions } from "../../data/mapRegions";
 import "leaflet/dist/leaflet.css";
 import "../../styles/global.css";
 import "../../styles/map.css";
+import "../../styles/map-player.css";
 
 export function getStaticPaths() {
   return mapRegions.map((region) => ({
@@ -93,7 +94,7 @@ const { region } = Astro.props;
                 min="0"
                 max="0"
                 value="0"
-                step="1"
+                step="0.01"
                 data-timeline
                 disabled
               />
@@ -153,6 +154,9 @@ const { region } = Astro.props;
         weatherStateForCode,
       } from "../../lib/weather";
 
+      const PLAYER_HOUR_MS = 2600;
+      const TIMELINE_PRECISION = 100;
+
       const root = document.querySelector("[data-region]");
       const region = JSON.parse(root?.getAttribute("data-region") ?? "{}");
       const status = document.querySelector("[data-map-status]");
@@ -173,8 +177,9 @@ const { region } = Astro.props;
 
       let map;
       let playing = false;
-      let timer;
-      let hourIndex = 0;
+      let animationId = 0;
+      let lastAnimationTime = 0;
+      let framePosition = 0;
       let frameCount = 0;
       let places = [];
 
@@ -191,8 +196,8 @@ const { region } = Astro.props;
       timeline?.addEventListener("input", (event) => {
         const value = Number(event.target.value);
         if (!Number.isFinite(value)) return;
-        hourIndex = value;
-        updateFrame(hourIndex);
+        setPlaying(false);
+        updateFrame(value);
       });
 
       window.addEventListener("storage", (event) => {
@@ -264,20 +269,22 @@ const { region } = Astro.props;
           throw new Error("No se pudo cargar ninguna localidad");
         }
 
+        frameCount = getFrameCount();
+        configureTimeline(frameCount);
+
         places.forEach((place) => {
+          const point = createFramePoint(place, framePosition);
           place.marker = L.marker([place.city.latitude, place.city.longitude], {
-            icon: createMarkerIcon(place, 0),
+            icon: createMarkerIcon(place, point),
             keyboard: true,
             title: place.city.name,
           }).addTo(map);
-          place.marker.bindPopup(createPopup(place, 0));
+          place.marker.bindPopup(createPopup(place, point));
         });
 
         fitMapToPlaces();
-        frameCount = getFrameCount();
-        configureTimeline(frameCount);
         renderCityList();
-        updateFrame(0);
+        updateFrame(framePosition);
         setControlsDisabled(frameCount <= 1);
 
         if (status) {
@@ -316,34 +323,45 @@ const { region } = Astro.props;
         };
       }
 
-      function tick() {
-        if (frameCount <= 1) return;
-        hourIndex = hourIndex >= frameCount - 1 ? 0 : hourIndex + 1;
-        updateFrame(hourIndex);
+      function animate(timestamp) {
+        if (!playing || frameCount <= 1) return;
+        if (!lastAnimationTime) lastAnimationTime = timestamp;
+
+        const elapsed = timestamp - lastAnimationTime;
+        lastAnimationTime = timestamp;
+        const maxFrame = Math.max(frameCount - 1, 0);
+        const nextPosition = framePosition + elapsed / PLAYER_HOUR_MS;
+
+        updateFrame(nextPosition > maxFrame ? 0 : nextPosition);
+        animationId = window.requestAnimationFrame(animate);
       }
 
-      function updateFrame(index) {
-        const safeIndex = clamp(index, 0, Math.max(frameCount - 1, 0));
-        hourIndex = safeIndex;
+      function updateFrame(position) {
+        const safePosition = roundTimelineValue(clamp(position, 0, Math.max(frameCount - 1, 0)));
+        framePosition = safePosition;
 
         places.forEach((place) => {
           if (!place.marker) return;
-          place.marker.setIcon(createMarkerIcon(place, safeIndex));
-          place.marker.setPopupContent(createPopup(place, safeIndex));
+          const point = createFramePoint(place, safePosition);
+          updateMarkerElement(place, point);
+          place.marker.setPopupContent(createPopup(place, point));
         });
 
-        const sample = getPoint(places[0], safeIndex);
-        updateTimelineUi(sample, safeIndex);
-        updateMapListFrame(safeIndex);
+        const sample = createFramePoint(places[0], safePosition);
+        updateTimelineUi(sample, safePosition);
+        updateMapListFrame(safePosition);
       }
 
-      function updateTimelineUi(sample, index) {
+      function updateTimelineUi(sample, position) {
+        const maxFrame = Math.max(frameCount - 1, 0);
+        const progress = maxFrame <= 0 ? 0 : (position / maxFrame) * 100;
+
         if (timeline) {
-          timeline.value = String(index);
-          timeline.style.setProperty("--progress", frameCount <= 1 ? "0%" : `${(index / (frameCount - 1)) * 100}%`);
+          timeline.value = String(position);
+          timeline.style.setProperty("--progress", `${progress}%`);
         }
 
-        const timeText = sample ? `${formatFullDate(sample.time)}` : "Ahora";
+        const timeText = sample ? formatFullDate(sample.time) : "Ahora";
         const dayText = sample ? formatDay(sample.time, true) : "Hoy";
         const hourText = sample ? formatHour(sample.time) : "Ahora";
         const night = isNightFrame(sample);
@@ -351,52 +369,81 @@ const { region } = Astro.props;
         if (timeLabel) timeLabel.textContent = timeText;
         if (daylightLabel) daylightLabel.textContent = night ? "Noche" : "Día";
         if (progressLabel) {
-          progressLabel.textContent = frameCount > 1 ? `Hora ${index + 1} de ${frameCount}` : "Datos horarios no disponibles";
+          progressLabel.textContent = frameCount > 1
+            ? `Avance ${Math.round(progress)}% de la prevision`
+            : "Datos horarios no disponibles";
         }
         if (clockDay) clockDay.textContent = capitalize(dayText);
         if (clockTime) clockTime.textContent = hourText;
         if (clockSummary) {
           clockSummary.textContent = sample
-            ? `${sample.description} · ${formatTemperature(sample.temperature)}`
+            ? `${sample.description} · ${formatMapTemperature(sample.temperature)}`
             : "Prevision horaria";
         }
         stage?.classList.toggle("is-night", night);
         stage?.classList.toggle("is-day", !night);
       }
 
-      function createMarkerIcon(place, index) {
-        const point = getPoint(place, index);
+      function createMarkerIcon(place, point) {
+        const markerPoint = point ?? createFramePoint(place, framePosition);
+        const image = markerPoint?.image ?? place.forecast.current.image;
+        const description = markerPoint?.description ?? place.forecast.current.description;
+        const temperature = markerPoint?.temperature ?? place.forecast.current.temperature;
+        const state = weatherStateForCode(markerPoint?.weatherCode ?? place.forecast.current.weatherCode);
+        const temperatureClass = temperatureLevel(temperature);
+
+        return L.divIcon({
+          className: "weather-marker",
+          html: markerHtml(place, image, description, temperature, state, temperatureClass),
+          iconSize: [88, 56],
+          iconAnchor: [44, 48],
+          popupAnchor: [0, -44],
+        });
+      }
+
+      function markerHtml(place, image, description, temperature, state, temperatureClass) {
+        return `
+          <div class="weather-marker__body weather-marker__body--${state} weather-marker__body--${temperatureClass}" title="${escapeHtml(place.city.name)}: ${escapeHtml(description)}" data-weather-marker>
+            <img src="${image}" alt="" data-marker-icon />
+            <strong class="weather-marker__temp weather-marker__temp--${temperatureClass}" data-marker-temp>${formatMapTemperature(temperature)}</strong>
+            <span data-marker-city>${escapeHtml(place.city.name)}</span>
+          </div>
+        `;
+      }
+
+      function updateMarkerElement(place, point) {
+        const markerBody = place.marker?.getElement()?.querySelector("[data-weather-marker]");
+        if (!markerBody) {
+          place.marker?.setIcon(createMarkerIcon(place, point));
+          return;
+        }
+
         const image = point?.image ?? place.forecast.current.image;
         const description = point?.description ?? place.forecast.current.description;
         const temperature = point?.temperature ?? place.forecast.current.temperature;
         const state = weatherStateForCode(point?.weatherCode ?? place.forecast.current.weatherCode);
         const temperatureClass = temperatureLevel(temperature);
+        const icon = markerBody.querySelector("[data-marker-icon]");
+        const temp = markerBody.querySelector("[data-marker-temp]");
+        const city = markerBody.querySelector("[data-marker-city]");
 
-        return L.divIcon({
-          className: "weather-marker",
-          html: `
-            <div class="weather-marker__body weather-marker__body--${state} weather-marker__body--${temperatureClass}" title="${escapeHtml(place.city.name)}: ${escapeHtml(description)}">
-              <img src="${image}" alt="" />
-              <strong>${formatTemperature(temperature)}</strong>
-              <span>${escapeHtml(place.city.name)}</span>
-              <small>${formatPercent(point?.rainProbability ?? place.forecast.today.precipitationProbability)} lluvia</small>
-            </div>
-          `,
-          iconSize: [104, 82],
-          iconAnchor: [52, 78],
-          popupAnchor: [0, -72],
-        });
+        markerBody.className = `weather-marker__body weather-marker__body--${state} weather-marker__body--${temperatureClass}`;
+        markerBody.setAttribute("title", `${place.city.name}: ${description}`);
+        if (icon) icon.setAttribute("src", image);
+        if (temp) {
+          temp.textContent = formatMapTemperature(temperature);
+          temp.className = `weather-marker__temp weather-marker__temp--${temperatureClass}`;
+        }
+        if (city) city.textContent = place.city.name;
       }
 
-      function createPopup(place, index) {
-        const point = getPoint(place, index);
+      function createPopup(place, point) {
         const description = point?.description ?? place.forecast.current.description;
         const temperature = point?.temperature ?? place.forecast.current.temperature;
         return `
           <strong>${escapeHtml(place.city.name)}</strong>
-          <p>${escapeHtml(description)} · ${formatTemperature(temperature)}</p>
+          <p>${escapeHtml(description)} · ${formatMapTemperature(temperature)}</p>
           <p>${point ? formatFullDate(point.time) : "Ahora"}</p>
-          <p>Max ${formatTemperature(place.forecast.today.max)} · Min ${formatTemperature(place.forecast.today.min)}</p>
           <p>Lluvia ${formatPercent(point?.rainProbability ?? place.forecast.today.precipitationProbability)} · Viento ${formatSpeed(point?.windSpeed ?? place.forecast.current.windSpeed)}</p>
           <p><a href="${place.city.href}">Ver detalle</a></p>
         `;
@@ -405,16 +452,16 @@ const { region } = Astro.props;
       function renderCityList() {
         if (!list) return;
         list.innerHTML = places
-          .map((place, index) => cityRowHtml(place, hourIndex, index))
+          .map((place, index) => cityRowHtml(place, framePosition, index))
           .join("");
       }
 
-      function updateMapListFrame(index) {
+      function updateMapListFrame(position) {
         const rows = list?.querySelectorAll("[data-map-row]");
         rows?.forEach((row) => {
           const place = places[Number(row.getAttribute("data-map-row"))];
           if (!place) return;
-          const point = getPoint(place, index);
+          const point = createFramePoint(place, position);
           const icon = row.querySelector("[data-row-icon]");
           const details = row.querySelector("[data-row-details]");
           const metrics = row.querySelector("[data-row-metrics]");
@@ -430,7 +477,7 @@ const { region } = Astro.props;
           }
           if (metrics) {
             metrics.innerHTML = `
-              <span>${formatTemperature(point?.temperature ?? place.forecast.current.temperature)}</span>
+              <span>${formatMapTemperature(point?.temperature ?? place.forecast.current.temperature)}</span>
               <span>${formatPercent(point?.rainProbability ?? place.forecast.today.precipitationProbability)}</span>
               <span>${formatSpeed(point?.windSpeed ?? place.forecast.current.windSpeed)}</span>
             `;
@@ -438,8 +485,8 @@ const { region } = Astro.props;
         });
       }
 
-      function cityRowHtml(place, frameIndex, rowIndex) {
-        const point = getPoint(place, frameIndex);
+      function cityRowHtml(place, position, rowIndex) {
+        const point = createFramePoint(place, position);
         return `
           <a class="weather-row" href="${place.city.href}" data-map-row="${rowIndex}">
             <img class="weather-icon weather-icon--sm" src="${point?.image ?? place.forecast.current.image}" alt="${point?.description ?? place.forecast.current.description}" loading="lazy" data-row-icon />
@@ -451,7 +498,7 @@ const { region } = Astro.props;
               </span>
             </span>
             <span class="row__metrics" data-row-metrics>
-              <span>${formatTemperature(point?.temperature ?? place.forecast.current.temperature)}</span>
+              <span>${formatMapTemperature(point?.temperature ?? place.forecast.current.temperature)}</span>
               <span>${formatPercent(point?.rainProbability ?? place.forecast.today.precipitationProbability)}</span>
               <span>${formatSpeed(point?.windSpeed ?? place.forecast.current.windSpeed)}</span>
             </span>
@@ -461,12 +508,13 @@ const { region } = Astro.props;
 
       function configureTimeline(frames) {
         frameCount = frames;
-        hourIndex = 0;
+        framePosition = getInitialFramePosition();
         if (timeline) {
           timeline.min = "0";
           timeline.max = String(Math.max(frames - 1, 0));
-          timeline.value = "0";
-          timeline.style.setProperty("--progress", "0%");
+          timeline.step = "0.01";
+          timeline.value = String(framePosition);
+          timeline.style.setProperty("--progress", getTimelineProgress(framePosition));
         }
       }
 
@@ -477,9 +525,55 @@ const { region } = Astro.props;
         );
       }
 
-      function getPoint(place, index) {
-        if (!place?.forecast?.hourly?.length) return null;
-        return place.forecast.hourly[index] ?? place.forecast.hourly[place.forecast.hourly.length - 1];
+      function getInitialFramePosition() {
+        const points = places[0]?.forecast?.hourly ?? [];
+        if (!points.length) return 0;
+
+        const now = getMadridNowMs();
+        let nearestIndex = 0;
+        let nearestDistance = Number.POSITIVE_INFINITY;
+
+        for (let index = 0; index < Math.min(points.length, frameCount) - 1; index += 1) {
+          const current = parseForecastTime(points[index]?.time);
+          const next = parseForecastTime(points[index + 1]?.time);
+          if (!Number.isFinite(current) || !Number.isFinite(next) || next <= current) continue;
+
+          if (now >= current && now <= next) {
+            return roundTimelineValue(index + (now - current) / (next - current));
+          }
+
+          const distance = Math.abs(now - current);
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestIndex = index;
+          }
+        }
+
+        const lastIndex = Math.min(points.length, frameCount) - 1;
+        const lastDistance = Math.abs(now - parseForecastTime(points[lastIndex]?.time));
+        return lastDistance < nearestDistance ? lastIndex : nearestIndex;
+      }
+
+      function createFramePoint(place, position) {
+        const points = place?.forecast?.hourly ?? [];
+        if (!points.length) return null;
+
+        const lowerIndex = clamp(Math.floor(position), 0, points.length - 1);
+        const upperIndex = clamp(Math.ceil(position), 0, points.length - 1);
+        const lower = points[lowerIndex];
+        const upper = points[upperIndex] ?? lower;
+        const ratio = clamp(position - lowerIndex, 0, 1);
+        const nearest = ratio < 0.5 ? lower : upper;
+
+        return {
+          ...nearest,
+          time: interpolateTime(lower?.time, upper?.time, ratio),
+          temperature: interpolateNumber(lower?.temperature, upper?.temperature, ratio),
+          rainProbability: interpolateNumber(lower?.rainProbability, upper?.rainProbability, ratio),
+          precipitation: interpolateNumber(lower?.precipitation, upper?.precipitation, ratio),
+          windSpeed: interpolateNumber(lower?.windSpeed, upper?.windSpeed, ratio),
+          windGusts: interpolateNumber(lower?.windGusts, upper?.windGusts, ratio),
+        };
       }
 
       function fitMapToPlaces() {
@@ -493,10 +587,10 @@ const { region } = Astro.props;
         if (playLabel) playLabel.textContent = playing ? "Pausa" : "Play";
         if (playIcon) playIcon.textContent = playing ? "⏸" : "▶";
         playButton?.setAttribute("aria-pressed", String(playing));
-        window.clearInterval(timer);
+        window.cancelAnimationFrame(animationId);
+        lastAnimationTime = 0;
         if (playing) {
-          tick();
-          timer = window.setInterval(tick, 1100);
+          animationId = window.requestAnimationFrame(animate);
         }
       }
 
@@ -509,10 +603,11 @@ const { region } = Astro.props;
         places.forEach((place) => place.marker?.remove());
         places = [];
         frameCount = 0;
-        hourIndex = 0;
+        framePosition = 0;
       }
 
       function showMapError() {
+        setPlaying(false);
         setControlsDisabled(true);
         if (status) status.textContent = "No se pudo cargar el mapa";
         if (list) {
@@ -548,9 +643,73 @@ const { region } = Astro.props;
 
       function temperatureLevel(value) {
         if (value === null || value === undefined) return "mild";
-        if (value >= 32) return "hot";
         if (value <= 7) return "cold";
+        if (value <= 14) return "cool";
+        if (value >= 32) return "hot";
+        if (value >= 26) return "warm";
         return "mild";
+      }
+
+      function formatMapTemperature(value) {
+        if (value === null || value === undefined) return "--";
+        return `${new Intl.NumberFormat("es-ES", { maximumFractionDigits: 1 }).format(value)}°`;
+      }
+
+      function interpolateNumber(start, end, ratio) {
+        if (start === null || start === undefined) return end ?? null;
+        if (end === null || end === undefined) return start;
+        return start + (end - start) * ratio;
+      }
+
+      function interpolateTime(start, end, ratio) {
+        if (!start || !end) return start ?? end ?? "";
+        const startMs = parseForecastTime(start);
+        const endMs = parseForecastTime(end);
+        if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return start;
+        return toLocalDateTimeString(new Date(startMs + (endMs - startMs) * ratio));
+      }
+
+      function parseForecastTime(value) {
+        if (!value) return Number.NaN;
+        return new Date(value).getTime();
+      }
+
+      function getMadridNowMs() {
+        const parts = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Europe/Madrid",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }).formatToParts(new Date());
+        const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+        return new Date(`${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}:${values.second}`).getTime();
+      }
+
+      function toLocalDateTimeString(date) {
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hour = pad(date.getHours());
+        const minute = pad(date.getMinutes());
+        const second = pad(date.getSeconds());
+        return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+      }
+
+      function getTimelineProgress(position) {
+        const maxFrame = Math.max(frameCount - 1, 0);
+        return maxFrame <= 0 ? "0%" : `${(position / maxFrame) * 100}%`;
+      }
+
+      function roundTimelineValue(value) {
+        return Math.round(value * TIMELINE_PRECISION) / TIMELINE_PRECISION;
+      }
+
+      function pad(value) {
+        return String(value).padStart(2, "0");
       }
 
       function slugify(value) {
