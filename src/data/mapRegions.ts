@@ -11,11 +11,16 @@ export type MapRegion = {
   zoom: number;
   cities: Location[];
   source?: "static" | "favorites";
+  fitPadding?: [number, number];
+  fitMaxZoom?: number;
+  singlePlaceZoom?: number;
 };
 
 const caceresCities: Location[] = [
   { slug: "caceres", name: "Caceres", province: "Caceres", latitude: 39.4753, longitude: -6.3724 },
   { slug: "plasencia", name: "Plasencia", province: "Caceres", latitude: 40.0312, longitude: -6.0885 },
+  { slug: "piornal", name: "Piornal", province: "Caceres", latitude: 40.1178, longitude: -5.8486 },
+  { slug: "navezuelas", name: "Navezuelas", province: "Caceres", latitude: 39.5117, longitude: -5.4386 },
   {
     slug: "navalmoral-de-la-mata",
     name: "Navalmoral de la Mata",
@@ -65,8 +70,11 @@ export const mapRegions: MapRegion[] = [
     title: "Mapa de Extremadura",
     shortTitle: "Extremadura",
     subtitle: "Animacion horaria con temperatura, lluvia, viento y ciclos de dia/noche en municipios extremenos",
-    center: [39.15, -6.25],
+    center: [39.12, -6.28],
     zoom: 8,
+    fitPadding: [42, 42],
+    fitMaxZoom: 8,
+    singlePlaceZoom: 10,
     cities: extremaduraCities,
   },
   {
@@ -75,7 +83,10 @@ export const mapRegions: MapRegion[] = [
     shortTitle: "Favoritos",
     subtitle: "Tus municipios guardados se muestran en un mapa animado propio, usando solo este navegador",
     center: [39.15, -6.25],
-    zoom: 7,
+    zoom: 8,
+    fitPadding: [46, 46],
+    fitMaxZoom: 10,
+    singlePlaceZoom: 10,
     source: "favorites",
     cities: [],
   },
@@ -84,8 +95,11 @@ export const mapRegions: MapRegion[] = [
     title: "Mapa de la provincia de Caceres",
     shortTitle: "Caceres",
     subtitle: "Evolucion meteorologica por horas en localidades de la provincia de Caceres",
-    center: [39.73, -6.1],
+    center: [39.72, -6.08],
     zoom: 8,
+    fitPadding: [38, 38],
+    fitMaxZoom: 9,
+    singlePlaceZoom: 10,
     cities: caceresCities,
   },
   {
@@ -93,8 +107,11 @@ export const mapRegions: MapRegion[] = [
     title: "Mapa de la provincia de Badajoz",
     shortTitle: "Badajoz",
     subtitle: "Evolucion meteorologica por horas en localidades de la provincia de Badajoz",
-    center: [38.75, -6.35],
+    center: [38.7, -6.42],
     zoom: 8,
+    fitPadding: [38, 38],
+    fitMaxZoom: 9,
+    singlePlaceZoom: 10,
     cities: badajozCities,
   },
   {
@@ -102,8 +119,11 @@ export const mapRegions: MapRegion[] = [
     title: "Mapa de Espana",
     shortTitle: "Espana",
     subtitle: "Principales ciudades con temperatura, estado del cielo y evolucion horaria",
-    center: [40.1, -3.7],
+    center: [39.7, -3.75],
     zoom: 5,
+    fitPadding: [18, 18],
+    fitMaxZoom: 5,
+    singlePlaceZoom: 9,
     cities: [
       { slug: "madrid", name: "Madrid", province: "Madrid", latitude: 40.4165, longitude: -3.7026 },
       { slug: "caceres", name: "Caceres", province: "Caceres", latitude: 39.4753, longitude: -6.3724 },
@@ -127,8 +147,11 @@ export const mapRegions: MapRegion[] = [
     title: "Mapa de Europa",
     shortTitle: "Europa",
     subtitle: "Capitales y grandes ciudades europeas con evolucion horaria",
-    center: [50.5, 10.5],
+    center: [50.1, 9.5],
     zoom: 4,
+    fitPadding: [18, 18],
+    fitMaxZoom: 4,
+    singlePlaceZoom: 8,
     cities: [
       { slug: "madrid", name: "Madrid", province: "Espana", latitude: 40.4165, longitude: -3.7026 },
       { slug: "lisboa", name: "Lisboa", province: "Portugal", latitude: 38.7167, longitude: -9.1333 },
