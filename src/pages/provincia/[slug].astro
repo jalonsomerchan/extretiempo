@@ -1,0 +1,188 @@
+---
+import { locations } from "../../data/locations";
+import "../../styles/global.css";
+
+type ProvincePage = {
+  slug: string;
+  dataKey: string;
+  name: string;
+  title: string;
+  description: string;
+  mapSlug: string;
+  intro: string;
+};
+
+const siteUrl = "https://extretiempo.alon.one";
+const provincePages: ProvincePage[] = [
+  {
+    slug: "caceres",
+    dataKey: "Caceres",
+    name: "Cáceres",
+    title: "El tiempo en la provincia de Cáceres | ExtreTiempo",
+    description: "Previsión meteorológica para municipios de la provincia de Cáceres: temperatura, lluvia, viento, heladas, polen, mapas y próximos días.",
+    mapSlug: "caceres",
+    intro: "Consulta el tiempo municipal en el norte de Extremadura: Cáceres capital, Plasencia, Piornal, Navezuelas, Trujillo, Coria, Navalmoral de la Mata y más localidades.",
+  },
+  {
+    slug: "badajoz",
+    dataKey: "Badajoz",
+    name: "Badajoz",
+    title: "El tiempo en la provincia de Badajoz | ExtreTiempo",
+    description: "Previsión meteorológica para municipios de la provincia de Badajoz: temperatura, lluvia, viento, calor, mapas y próximos días.",
+    mapSlug: "badajoz",
+    intro: "Consulta el tiempo municipal en el sur de Extremadura: Badajoz capital, Mérida, Don Benito, Zafra, Almendralejo, Olivenza, Llerena y más localidades.",
+  },
+];
+
+export function getStaticPaths() {
+  return provincePages.map((province) => ({
+    params: { slug: province.slug },
+    props: { province },
+  }));
+}
+
+const { province } = Astro.props as { province: ProvincePage };
+const provinceLocations = locations.filter((location) => location.province === province.dataKey);
+const canonical = `${siteUrl}/provincia/${province.slug}/`;
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      name: province.title,
+      description: province.description,
+      url: canonical,
+      isPartOf: {
+        "@type": "WebSite",
+        name: "ExtreTiempo",
+        url: siteUrl,
+      },
+      about: {
+        "@type": "AdministrativeArea",
+        name: `Provincia de ${province.name}`,
+      },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: provinceLocations.map((location, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: `El tiempo en ${location.name}`,
+          url: `${siteUrl}/localidad/${location.slug}/`,
+        })),
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Municipios", item: `${siteUrl}/municipios/` },
+        { "@type": "ListItem", position: 3, name: province.name, item: canonical },
+      ],
+    },
+  ],
+};
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{province.title}</title>
+    <meta name="description" content={province.description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExtreTiempo" />
+    <meta property="og:title" content={province.title} />
+    <meta property="og:description" content={province.description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <main class="app-shell insight-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Provincia</span>
+            <span class="brand__name">{province.name}</span>
+            <span class="meta">Previsión municipal</span>
+          </span>
+        </a>
+        <nav class="site-header__actions" aria-label="Enlaces principales">
+          <a class="link-button" href="/municipios/">Municipios</a>
+          <a class="link-button" href={`/mapas/${province.mapSlug}/`}>Mapa</a>
+        </nav>
+      </header>
+
+      <section class="insight-hero" aria-labelledby="province-title">
+        <div>
+          <p class="eyebrow">Tiempo en Extremadura</p>
+          <h1 id="province-title">El tiempo en la provincia de {province.name}</h1>
+          <p>{province.intro}</p>
+        </div>
+        <div class="insight-hero__actions">
+          <a class="chip" href={`/mapas/${province.mapSlug}/`}>Mapa de {province.name}</a>
+          <a class="chip" href="/lluvia/">Lluvia regional</a>
+          <a class="chip" href="/rankings/">Rankings</a>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="localidades-title">
+        <div class="section__header">
+          <div>
+            <p class="eyebrow">Localidades indexables</p>
+            <h2 class="section__title" id="localidades-title">Municipios de {province.name}</h2>
+            <p class="meta">Cada enlace lleva a una ficha con previsión por horas, próximos días, lluvia, viento, UV y datos actuales.</p>
+          </div>
+        </div>
+        <div class="quick-grid">
+          {provinceLocations.map((location) => (
+            <a class="quick-card" href={`/localidad/${location.slug}/`}>
+              <span class="brand__mark">{location.name.slice(0, 2).toUpperCase()}</span>
+              <span class="quick-card__main">
+                <span class="quick-card__title">El tiempo en {location.name}</span>
+                <span class="meta">Provincia de {province.name}</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="consultas-title">
+        <div class="section__header">
+          <div>
+            <p class="eyebrow">Consultas relacionadas</p>
+            <h2 class="section__title" id="consultas-title">Datos útiles para la provincia</h2>
+          </div>
+        </div>
+        <div class="chips">
+          <a class="chip" href="/hoy/">Hoy en Extremadura</a>
+          <a class="chip" href="/calor/">Dónde hará más calor</a>
+          <a class="chip" href="/heladas/">Riesgo de heladas</a>
+          <a class="chip" href="/viento/">Viento y rachas</a>
+          <a class="chip" href="/calidad-del-aire/">Calidad del aire</a>
+          <a class="chip" href="/polen/">Polen</a>
+          <a class="chip" href="/campo/">Tiempo para el campo</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Previsión meteorológica local para la provincia de {province.name} con datos abiertos de Open-Meteo.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/municipios/">Municipios</a>
+        <a href="/tiempo-en-extremadura/">Guía regional</a>
+        <a href="/provincia/caceres/">Cáceres</a>
+        <a href="/provincia/badajoz/">Badajoz</a>
+      </nav>
+    </footer>
+  </body>
+</html>
