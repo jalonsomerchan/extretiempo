@@ -116,7 +116,7 @@ export default defineConfig({
       customPages: sitemapPages,
       changefreq: 'daily',
       priority: 0.8,
-      lastmod: BUILD_TIME_ISO,
+      lastmod: BUILD_TIME,
       serialize(item) {
         item.changefreq = changefreqForPage(item.url);
         item.priority = priorityForPage(item.url);
