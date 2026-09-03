@@ -1,0 +1,154 @@
+---
+import "../styles/global.css";
+import "../styles/static-page.css";
+
+const siteUrl = "https://extretiempo.alon.one";
+const title = "Más información sobre los datos meteorológicos | ExtreTiempo";
+const description = "Información sobre fuentes, actualización, límites y criterios de ExtreTiempo para mostrar la previsión meteorológica de Extremadura.";
+const canonical = `${siteUrl}/mas-informacion/`;
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      name: title,
+      description,
+      url: canonical,
+      inLanguage: "es-ES",
+      isPartOf: { "@type": "WebSite", name: "ExtreTiempo", url: siteUrl },
+      about: [{ "@type": "Thing", name: "fuentes meteorológicas" }, { "@type": "Thing", name: "Open-Meteo" }],
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Más información", item: canonical },
+      ],
+    },
+  ],
+};
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExtreTiempo" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <main class="static-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Transparencia</span>
+            <span class="brand__name">ExtreTiempo</span>
+            <span class="meta">Fuentes y límites</span>
+          </span>
+        </a>
+        <nav class="site-header__actions" aria-label="Enlaces principales">
+          <a class="link-button" href="/hoy/">Hoy</a>
+          <a class="link-button" href="/mapas/extremadura/">Mapa</a>
+        </nav>
+      </header>
+
+      <section class="static-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Más información</p>
+          <h1 id="page-title">De dónde salen los datos y cómo leerlos</h1>
+          <p>
+            Esta página explica qué fuentes utiliza ExtreTiempo, cómo se interpretan los datos y qué precauciones conviene tener al consultar previsiones meteorológicas automáticas.
+          </p>
+        </div>
+        <aside class="static-hero__aside" aria-label="Resumen">
+          <div class="static-note">
+            <strong>Previsión orientativa</strong>
+            <span>Útil para consulta diaria, no equivalente a un aviso oficial de protección civil o meteorología estatal.</span>
+          </div>
+          <div class="static-note">
+            <strong>Actualización frecuente</strong>
+            <span>Las páginas consultan datos recientes y pueden variar a lo largo del día.</span>
+          </div>
+        </aside>
+      </section>
+
+      <div class="static-layout">
+        <article class="static-content">
+          <section class="static-card">
+            <h2>Fuentes principales</h2>
+            <p>
+              ExtreTiempo usa Open-Meteo como base para la previsión meteorológica. Según la página consultada, también se pueden usar servicios relacionados para calidad del aire, polen, histórico, clima o ríos.
+            </p>
+            <ul class="static-list">
+              <li>Previsión por horas y días: temperatura, lluvia, viento, rachas, humedad, nubes y UV.</li>
+              <li>Calidad del aire y polen: valores orientativos para facilitar una lectura rápida.</li>
+              <li>Histórico, clima y ríos: datos de contexto, no avisos oficiales en tiempo real.</li>
+            </ul>
+          </section>
+
+          <section class="static-card">
+            <h2>Cómo interpretar la previsión</h2>
+            <div class="static-grid">
+              <div class="static-mini-card">
+                <strong>Probabilidad de lluvia</strong>
+                <span>Indica posibilidad de precipitación en el intervalo mostrado, no que vaya a llover todo el tiempo.</span>
+              </div>
+              <div class="static-mini-card">
+                <strong>Viento y rachas</strong>
+                <span>La racha puede ser notablemente superior a la velocidad media del viento.</span>
+              </div>
+              <div class="static-mini-card">
+                <strong>Temperatura y sensación</strong>
+                <span>La sensación térmica combina temperatura, humedad y viento cuando el dato está disponible.</span>
+              </div>
+              <div class="static-mini-card">
+                <strong>Datos locales</strong>
+                <span>La previsión se calcula por coordenadas y puede no captar microclimas de calles, valles o sierras.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="static-card">
+            <h2>Límites de la información</h2>
+            <p>
+              Los modelos meteorológicos pueden cambiar con nuevas actualizaciones, especialmente en tormentas, nieblas, heladas locales o chubascos muy repartidos. Para situaciones de riesgo, conviene consultar siempre fuentes oficiales.
+            </p>
+          </section>
+        </article>
+
+        <nav class="static-aside" aria-label="Páginas informativas">
+          <a href="/acerca-de/">Acerca de</a>
+          <a href="/mas-informacion/" aria-current="page">Más información</a>
+          <a href="/contacto/">Contacto</a>
+          <a href="/privacidad/">Privacidad</a>
+          <a href="/aviso-legal/">Aviso legal</a>
+        </nav>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Información meteorológica regional basada en datos abiertos y lectura local.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/acerca-de/">Acerca de</a>
+        <a href="/privacidad/">Privacidad</a>
+        <a href="/contacto/">Contacto</a>
+      </nav>
+    </footer>
+  </body>
+</html>

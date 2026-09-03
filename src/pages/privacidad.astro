@@ -1,0 +1,138 @@
+---
+import "../styles/global.css";
+import "../styles/static-page.css";
+
+const siteUrl = "https://extretiempo.alon.one";
+const title = "Privacidad | ExtreTiempo";
+const description = "Información de privacidad de ExtreTiempo: favoritos guardados en el navegador, uso de APIs meteorológicas y ausencia de cuentas de usuario.";
+const canonical = `${siteUrl}/privacidad/`;
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "PrivacyPolicy",
+      name: title,
+      description,
+      url: canonical,
+      inLanguage: "es-ES",
+      isPartOf: { "@type": "WebSite", name: "ExtreTiempo", url: siteUrl },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Privacidad", item: canonical },
+      ],
+    },
+  ],
+};
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExtreTiempo" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <main class="static-shell">
+      <header class="site-header">
+        <a class="brand brand--header" href="/" aria-label="ExtreTiempo inicio">
+          <span class="brand__mark">ET</span>
+          <span>
+            <span class="eyebrow">Privacidad</span>
+            <span class="brand__name">ExtreTiempo</span>
+            <span class="meta">Datos y navegador</span>
+          </span>
+        </a>
+        <nav class="site-header__actions" aria-label="Enlaces principales">
+          <a class="link-button" href="/contacto/">Contacto</a>
+          <a class="link-button" href="/aviso-legal/">Aviso legal</a>
+        </nav>
+      </header>
+
+      <section class="static-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Privacidad</p>
+          <h1 id="page-title">Una web sin cuentas de usuario</h1>
+          <p>
+            ExtreTiempo está pensado como una herramienta de consulta. No requiere registro, inicio de sesión ni datos personales para ver la previsión meteorológica.
+          </p>
+        </div>
+        <aside class="static-hero__aside" aria-label="Resumen">
+          <div class="static-note">
+            <strong>Favoritos locales</strong>
+            <span>Los municipios favoritos se guardan en el navegador mediante almacenamiento local.</span>
+          </div>
+          <div class="static-note">
+            <strong>APIs externas</strong>
+            <span>La previsión se obtiene consultando servicios meteorológicos externos.</span>
+          </div>
+        </aside>
+      </section>
+
+      <div class="static-layout">
+        <article class="static-content">
+          <section class="static-card">
+            <h2>Datos guardados en tu navegador</h2>
+            <p>
+              Algunas funciones, como guardar municipios favoritos, pueden utilizar almacenamiento local del navegador. Esto permite recordar tus localidades sin crear una cuenta y sin enviar esa lista a un servidor propio de ExtreTiempo.
+            </p>
+            <ul class="static-list">
+              <li>Puedes borrar esos datos limpiando el almacenamiento del sitio desde tu navegador.</li>
+              <li>Los favoritos solo afectan al dispositivo y navegador donde se guardaron.</li>
+              <li>Si cambias de navegador o dispositivo, tus favoritos no se sincronizan automáticamente.</li>
+            </ul>
+          </section>
+
+          <section class="static-card">
+            <h2>Consultas a servicios externos</h2>
+            <p>
+              Para mostrar previsión, mapas, calidad del aire, polen u otros datos, el navegador puede realizar peticiones a APIs meteorológicas externas. Esas peticiones son necesarias para que la web funcione y dependen de la disponibilidad de dichos servicios.
+            </p>
+          </section>
+
+          <section class="static-card">
+            <h2>Analítica, cookies y cambios futuros</h2>
+            <p>
+              Esta página describe el funcionamiento previsto de ExtreTiempo como herramienta de consulta. Si en el futuro se añaden analítica, publicidad, formularios o servicios adicionales, esta página deberá actualizarse para explicarlo de forma clara.
+            </p>
+          </section>
+        </article>
+
+        <nav class="static-aside" aria-label="Páginas informativas">
+          <a href="/acerca-de/">Acerca de</a>
+          <a href="/mas-informacion/">Más información</a>
+          <a href="/contacto/">Contacto</a>
+          <a href="/privacidad/" aria-current="page">Privacidad</a>
+          <a href="/aviso-legal/">Aviso legal</a>
+        </nav>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>ExtreTiempo</strong>
+        <p>Privacidad y uso de datos locales en la guía meteorológica regional.</p>
+      </div>
+      <nav aria-label="Enlaces de pie">
+        <a href="/">Inicio</a>
+        <a href="/contacto/">Contacto</a>
+        <a href="/mas-informacion/">Más información</a>
+        <a href="/aviso-legal/">Aviso legal</a>
+      </nav>
+    </footer>
+  </body>
+</html>

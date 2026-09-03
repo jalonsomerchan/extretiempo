@@ -18,7 +18,7 @@ export const locations: Location[] = [
   },
   {
     slug: "caceres",
-    name: "Caceres",
+    name: "Cáceres",
     province: "Caceres",
     latitude: 39.4753,
     longitude: -6.3724,
@@ -26,7 +26,7 @@ export const locations: Location[] = [
   },
   {
     slug: "merida",
-    name: "Merida",
+    name: "Mérida",
     province: "Badajoz",
     latitude: 38.9161,
     longitude: -6.3437,
@@ -121,7 +121,7 @@ export const locations: Location[] = [
   },
   {
     slug: "jaraiz-de-la-vera",
-    name: "Jaraiz de la Vera",
+    name: "Jaraíz de la Vera",
     province: "Caceres",
     latitude: 40.0605,
     longitude: -5.7543,
@@ -135,14 +135,14 @@ export const locations: Location[] = [
   },
   {
     slug: "valencia-de-alcantara",
-    name: "Valencia de Alcantara",
+    name: "Valencia de Alcántara",
     province: "Caceres",
     latitude: 39.4115,
     longitude: -7.2444,
   },
   {
     slug: "logrosan",
-    name: "Logrosan",
+    name: "Logrosán",
     province: "Caceres",
     latitude: 39.3365,
     longitude: -5.4928,
