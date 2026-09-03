@@ -17,8 +17,8 @@ Focused region comparison: the daily rows were inspected at 390px. Rows remain s
 - Spacing and layout rhythm: mobile rows use a fixed five-column grid with 14px/12px padding, 8px gaps, and stable 86px minimum height. Desktop uses the same content order in a wider horizontal grid.
 - Colors and visual tokens: existing project tokens are reused for heat, rain, muted text, borders, and active-row background; no new palette drift was introduced.
 - Image quality and asset fidelity: weather images remain real weather image assets supplied by the existing Open-Meteo/OpenWeather mapping; no placeholder or CSS-drawn weather icon was added.
-- Copy and content: visible copy is Spanish and uses concise labels (`Prob. lluvia`, `Viento`, `Ver`); dynamic values remain sourced from Open-Meteo.
-- Icons: the existing weather icon and accessible image alt text are preserved. The row retains a visible `Ver` affordance and the native button semantics.
+- Copy and content: visible copy is Spanish and uses concise labels (`Prob. lluvia`, `Viento`); dynamic values remain sourced from Open-Meteo.
+- Icons: the existing weather icon and accessible image alt text are preserved. The row retains the native button semantics without redundant visible `Ver` copy.
 - Accessibility: daily forecasts remain semantic buttons with `aria-expanded`/`aria-controls`; weather descriptions remain available through image alt text; focus styling is inherited from the project.
 
 ## Findings
@@ -42,6 +42,9 @@ No actionable P0/P1/P2 findings remain.
 - [x] Metrics remain an eight-card grid on desktop.
 - [x] Locality summary is more compact on mobile, with lighter title and temperature typography.
 - [x] Redundant section labels and the regional animation link are removed from the visible locality view.
+- [x] Weekly maximum/minimum changes are shown as signed degree differences against the previous day, with red/blue semantic color cues.
+- [x] The redundant visible “Ver” label was removed while day expansion remains functional.
+- [x] Hourly forecast uses a compact 2x2 metric grid with rain, wind, gusts, and humidity.
 - [x] `npm run build` completed successfully.
 
 ## Follow-up polish

@@ -35,6 +35,7 @@ export type WeatherSnapshot = {
 export type HourlyPoint = {
   time: string;
   temperature: number | null;
+  humidity: number | null;
   rainProbability: number | null;
   precipitation: number | null;
   weatherCode: number | null;
@@ -300,6 +301,7 @@ function getHourlyPoints(data: OpenMeteoResponse): HourlyPoint[] {
       return {
         time: String(time),
         temperature: toNumber(data.hourly?.temperature_2m?.[index]),
+        humidity: toNumber(data.hourly?.relative_humidity_2m?.[index]),
         rainProbability: toNumber(data.hourly?.precipitation_probability?.[index]),
         precipitation: toNumber(data.hourly?.precipitation?.[index]),
         weatherCode,

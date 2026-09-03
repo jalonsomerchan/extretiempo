@@ -253,8 +253,8 @@
 }
 
 .location-hour-card {
-  flex-basis: 128px;
-  min-height: 190px;
+  flex-basis: 158px;
+  min-height: 218px;
   border-radius: 22px;
   background:
     linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(255, 253, 248, 0.78)),
@@ -271,7 +271,8 @@
 }
 
 .location-hour-card strong {
-  margin: 16px 0 10px;
+  display: block;
+  margin: 14px 0 8px;
   color: var(--green);
   font-size: 2rem;
   line-height: 0.9;
@@ -280,19 +281,35 @@
 
 .location-hour-card__metrics {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  margin-top: 12px;
+  margin: 12px 0 0;
 }
 
-.location-hour-card__metrics span {
-  display: inline-flex;
+.location-hour-card__metrics div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
   border: 1px solid rgba(222, 219, 208, 0.7);
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(255, 253, 248, 0.7);
-  padding: 5px 8px;
+  padding: 6px 7px;
+}
+
+.location-hour-card__metrics dt {
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 780;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.location-hour-card__metrics dd {
+  margin: 0;
   color: var(--ink-soft);
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   font-weight: 800;
+  line-height: 1.15;
 }
 
 .location-days {
@@ -331,11 +348,18 @@
 .location-day-row__temps {
   display: grid;
   gap: 3px;
-  min-width: 74px;
+  min-width: 88px;
   color: var(--ink-soft);
   font-size: 0.86rem;
   font-weight: 780;
   line-height: 1.1;
+}
+
+.location-day-row__temp-line {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .location-day-row__max {
@@ -344,6 +368,23 @@
 
 .location-day-row__min {
   color: var(--rain);
+}
+
+.location-day-row__change {
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.temperature-change--warmer {
+  color: var(--danger);
+}
+
+.temperature-change--cooler {
+  color: var(--rain);
+}
+
+.temperature-change--same {
+  color: var(--muted);
 }
 
 .location-day-row__icon {
@@ -380,14 +421,6 @@
   color: var(--ink);
   font-size: 0.82rem;
   line-height: 1.05;
-}
-
-.location-day-row__toggle {
-  color: var(--rain);
-  font-size: 0.68rem;
-  font-weight: 850;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .location-day .day-panel {
@@ -542,8 +575,12 @@
   }
 
   .location-day-row__temps {
-    min-width: 56px;
+    min-width: 74px;
     font-size: 0.76rem;
+  }
+
+  .location-day-row__change {
+    font-size: 0.6rem;
   }
 
   .location-day-row__icon {
@@ -573,10 +610,6 @@
   .location-day-stat strong {
     margin-top: 0;
     font-size: 0.72rem;
-  }
-
-  .location-day-row__toggle {
-    font-size: 0.59rem;
   }
 
   .location-day-hour {

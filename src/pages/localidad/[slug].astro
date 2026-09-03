@@ -170,10 +170,18 @@ const { location } = Astro.props;
           {
             Array.from({ length: 8 }).map(() => (
               <article class="hour-card location-hour-card">
-                <img class="weather-icon weather-icon--sm" src="/weather/open-meteo-cloudy.svg" alt="" />
-                <span class="label">--</span>
+                <div class="location-hour-card__head">
+                  <span class="label">--</span>
+                  <img class="weather-icon weather-icon--sm" src="/weather/open-meteo-cloudy.svg" alt="" />
+                </div>
                 <strong>--</strong>
                 <p class="meta">Cargando</p>
+                <dl class="location-hour-card__metrics">
+                  <div><dt>Lluvia</dt><dd>--</dd></div>
+                  <div><dt>Viento</dt><dd>--</dd></div>
+                  <div><dt>Rachas</dt><dd>--</dd></div>
+                  <div><dt>Humedad</dt><dd>--</dd></div>
+                </dl>
               </article>
             ))
           }
@@ -365,10 +373,12 @@ const { location } = Astro.props;
                 </div>
                 <strong>${formatTemperature(point.temperature)}</strong>
                 <p class="meta">${point.description}</p>
-                <div class="location-hour-card__metrics">
-                  <span>Lluvia ${formatPercent(point.rainProbability)}</span>
-                  <span>Viento ${formatSpeed(point.windSpeed)}</span>
-                </div>
+                <dl class="location-hour-card__metrics">
+                  <div><dt>Lluvia</dt><dd>${formatPercent(point.rainProbability)}</dd></div>
+                  <div><dt>Viento</dt><dd>${formatSpeed(point.windSpeed)}</dd></div>
+                  <div><dt>Rachas</dt><dd>${formatSpeed(point.windGusts)}</dd></div>
+                  <div><dt>Humedad</dt><dd>${formatPercent(point.humidity)}</dd></div>
+                </dl>
               </article>
             `,
           )
@@ -382,6 +392,11 @@ const { location } = Astro.props;
         container.innerHTML = points
           .map(
             (point, index) => `
+              ${(() => {
+                const previousPoint = points[index - 1];
+                const maxChange = temperatureDifference(point.max, previousPoint?.max);
+                const minChange = temperatureDifference(point.min, previousPoint?.min);
+                return `
               <article class="day-accordion location-day" data-day-item="${point.date}">
                 <button class="weather-row day-row location-day-row" type="button" data-day="${point.date}" aria-expanded="false" aria-controls="hours-${point.date}">
                   <span class="location-day-row__date">
@@ -389,8 +404,14 @@ const { location } = Astro.props;
                     <span class="location-day-row__date-label">${formatDailyDate(point.date)}</span>
                   </span>
                   <span class="location-day-row__temps" aria-label="Máxima ${formatTemperature(point.max)}, mínima ${formatTemperature(point.min)}">
-                    <span class="location-day-row__max">↑ ${formatTemperature(point.max)}</span>
-                    <span class="location-day-row__min">↓ ${formatTemperature(point.min)}</span>
+                    <span class="location-day-row__temp-line">
+                      <span class="location-day-row__max">↑ ${formatTemperature(point.max)}</span>
+                      <small class="location-day-row__change ${temperatureChangeClass(maxChange)}">${formatTemperatureChange(maxChange)}</small>
+                    </span>
+                    <span class="location-day-row__temp-line">
+                      <span class="location-day-row__min">↓ ${formatTemperature(point.min)}</span>
+                      <small class="location-day-row__change ${temperatureChangeClass(minChange)}">${formatTemperatureChange(minChange)}</small>
+                    </span>
                   </span>
                   <img class="weather-icon weather-icon--sm location-day-row__icon" src="${point.image}" alt="${point.description}" loading="lazy" />
                   <span class="row__metrics location-day-row__metrics">
@@ -403,7 +424,6 @@ const { location } = Astro.props;
                       <strong>${formatSpeed(point.windMax)}</strong>
                     </span>
                   </span>
-                  <span class="location-day-row__toggle" aria-hidden="true">Ver</span>
                 </button>
                 <div class="day-panel is-hidden" id="hours-${point.date}" data-day-panel="${point.date}">
                   <div class="day-panel__hours">
@@ -411,6 +431,8 @@ const { location } = Astro.props;
                   </div>
                 </div>
               </article>
+                `;
+              })()}
             `,
           )
           .join("");
@@ -465,6 +487,21 @@ const { location } = Astro.props;
 
       function capitalize(value) {
         return value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : value;
+      }
+
+      function temperatureDifference(value, reference) {
+        if (value === null || reference === null || reference === undefined) return null;
+        return Math.round(value - reference);
+      }
+
+      function formatTemperatureChange(value) {
+        if (value === null) return "—";
+        return `${value > 0 ? "+" : ""}${value}°`;
+      }
+
+      function temperatureChangeClass(value) {
+        if (value === null || value === 0) return "temperature-change--same";
+        return value > 0 ? "temperature-change--warmer" : "temperature-change--cooler";
       }
 
       function upcomingHours(points) {
