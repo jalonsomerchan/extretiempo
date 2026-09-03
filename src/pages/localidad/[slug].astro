@@ -107,14 +107,7 @@ const { location } = Astro.props;
         </div>
       </section>
 
-      <section class="location-section location-section--metrics" aria-labelledby="metrics-title">
-        <div class="section__header location-section__header">
-          <div>
-            <p class="eyebrow">Panel vivo</p>
-            <h2 class="section__title" id="metrics-title">Metricas clave</h2>
-            <p class="meta">Datos actuales y maximos diarios disponibles</p>
-          </div>
-        </div>
+      <section class="location-section location-section--metrics" aria-label="Metricas clave">
         <div class="metrics-grid location-metrics" data-metrics>
           <article class="metric location-metric location-metric--rain">
             <span class="location-metric__icon" aria-hidden="true">☔</span>
@@ -172,15 +165,7 @@ const { location } = Astro.props;
         </div>
       </section>
 
-      <section class="location-section" aria-labelledby="hours-title">
-        <div class="section__header location-section__header">
-          <div>
-            <p class="eyebrow">Timeline</p>
-            <h2 class="section__title" id="hours-title">Proximas horas</h2>
-            <p class="meta" data-hourly-label>Temperatura, lluvia y viento hora a hora</p>
-          </div>
-          <a class="chip" href="/mapas/extremadura/">Animacion regional</a>
-        </div>
+      <section class="location-section" aria-label="Proximas horas">
         <div class="scroll-strip location-hour-strip" data-hourly>
           {
             Array.from({ length: 8 }).map(() => (
@@ -283,7 +268,6 @@ const { location } = Astro.props;
       import {
         buildForecastUrl,
         formatAmount,
-        formatDay,
         formatHour,
         formatPercent,
         formatSpeed,
@@ -363,14 +347,13 @@ const { location } = Astro.props;
         setText("[data-metric='direction']", windDirectionLabel(forecast.current.windDirection));
         updateCompass(forecast.current.windDirection);
 
-        renderHourly(upcomingHours(forecast.hourly), "Proximas horas");
+        renderHourly(upcomingHours(forecast.hourly));
         renderDaily(forecast.daily);
       }
 
-      function renderHourly(points, label) {
+      function renderHourly(points) {
         const container = document.querySelector("[data-hourly]");
         if (!container) return;
-        setText("[data-hourly-label]", label);
 
         container.innerHTML = points
           .map(
@@ -402,18 +385,25 @@ const { location } = Astro.props;
               <article class="day-accordion location-day" data-day-item="${point.date}">
                 <button class="weather-row day-row location-day-row" type="button" data-day="${point.date}" aria-expanded="false" aria-controls="hours-${point.date}">
                   <span class="location-day-row__date">
-                    <span class="row__title">${index === 0 ? "Hoy" : formatDay(point.date, true)}</span>
-                    <span class="row__details">
-                      <span>${point.description}</span>
-                      <span>UV ${formatUv(point.uvMax)}</span>
+                    <span class="location-day-row__weekday">${index === 0 ? "Hoy" : capitalize(formatDailyWeekday(point.date))}</span>
+                    <span class="location-day-row__date-label">${formatDailyDate(point.date)}</span>
+                  </span>
+                  <span class="location-day-row__temps" aria-label="Máxima ${formatTemperature(point.max)}, mínima ${formatTemperature(point.min)}">
+                    <span class="location-day-row__max">↑ ${formatTemperature(point.max)}</span>
+                    <span class="location-day-row__min">↓ ${formatTemperature(point.min)}</span>
+                  </span>
+                  <img class="weather-icon weather-icon--sm location-day-row__icon" src="${point.image}" alt="${point.description}" loading="lazy" />
+                  <span class="row__metrics location-day-row__metrics">
+                    <span class="location-day-stat">
+                      <small>Prob. lluvia</small>
+                      <strong>${formatPercent(point.precipitationProbability)}</strong>
+                    </span>
+                    <span class="location-day-stat">
+                      <small>Viento</small>
+                      <strong>${formatSpeed(point.windMax)}</strong>
                     </span>
                   </span>
-                  <img class="weather-icon weather-icon--sm" src="${point.image}" alt="${point.description}" loading="lazy" />
-                  <span class="row__metrics location-day-row__metrics">
-                    <span>${formatTemperature(point.max)} / ${formatTemperature(point.min)}</span>
-                    <span>${formatPercent(point.precipitationProbability)}</span>
-                    <span>${formatSpeed(point.windMax)}</span>
-                  </span>
+                  <span class="location-day-row__toggle" aria-hidden="true">Ver</span>
                 </button>
                 <div class="day-panel is-hidden" id="hours-${point.date}" data-day-panel="${point.date}">
                   <div class="day-panel__hours">
@@ -454,6 +444,27 @@ const { location } = Astro.props;
             `,
           )
           .join("");
+      }
+
+      function formatDailyWeekday(value) {
+        if (!value) return "--";
+        return new Intl.DateTimeFormat("es-ES", {
+          weekday: "short",
+          timeZone: "Europe/Madrid",
+        }).format(new Date(value)).replace(".", "");
+      }
+
+      function formatDailyDate(value) {
+        if (!value) return "--";
+        return new Intl.DateTimeFormat("es-ES", {
+          day: "numeric",
+          month: "short",
+          timeZone: "Europe/Madrid",
+        }).format(new Date(value)).replace(".", "");
+      }
+
+      function capitalize(value) {
+        return value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : value;
       }
 
       function upcomingHours(points) {

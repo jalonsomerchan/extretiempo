@@ -11,7 +11,7 @@
   overflow: hidden;
   display: grid;
   gap: 18px;
-  min-height: 430px;
+  min-height: 360px;
   border: 1px solid rgba(222, 219, 208, 0.86);
   border-radius: 32px;
   background:
@@ -20,7 +20,7 @@
     linear-gradient(128deg, rgba(24, 34, 29, 0.96), rgba(31, 91, 67, 0.92) 52%, rgba(39, 125, 168, 0.86));
   box-shadow: 0 24px 70px rgba(31, 37, 32, 0.18);
   color: #fffdf8;
-  padding: clamp(20px, 5vw, 36px);
+  padding: clamp(18px, 4vw, 28px);
 }
 
 .location-hero::before {
@@ -41,7 +41,7 @@
   display: grid;
   min-width: 0;
   align-content: end;
-  gap: 18px;
+  gap: 12px;
 }
 
 .location-hero__kicker {
@@ -61,10 +61,10 @@
   width: min(100%, 780px);
   max-width: none;
   margin: 0;
-  font-size: clamp(2.35rem, 5.2vw, 4.85rem);
-  font-weight: 920;
+  font-size: clamp(2.15rem, 4.2vw, 3.8rem);
+  font-weight: 650;
   line-height: 1.02;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.035em;
   text-wrap: balance;
   overflow-wrap: normal;
   word-break: normal;
@@ -74,8 +74,8 @@
 .location-hero__lead {
   max-width: 66ch;
   margin: 0;
-  font-size: clamp(1.02rem, 2vw, 1.18rem);
-  line-height: 1.62;
+  font-size: clamp(0.92rem, 1.7vw, 1.06rem);
+  line-height: 1.45;
 }
 
 .location-hero__chips {
@@ -107,12 +107,12 @@
 .location-now-card {
   align-self: end;
   border: 1px solid rgba(255, 253, 248, 0.22);
-  border-radius: 28px;
+  border-radius: 22px;
   background:
     linear-gradient(160deg, rgba(255, 253, 248, 0.22), rgba(255, 253, 248, 0.1)),
     rgba(255, 253, 248, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 20px 54px rgba(0, 0, 0, 0.18);
-  padding: clamp(18px, 4vw, 26px);
+  padding: clamp(16px, 3vw, 22px);
   backdrop-filter: blur(20px) saturate(1.18);
 }
 
@@ -126,41 +126,42 @@
 .location-now-card h2 {
   margin: 4px 0 0;
   font-size: clamp(1.2rem, 3vw, 1.7rem);
+  font-weight: 650;
   line-height: 1.05;
   letter-spacing: -0.04em;
 }
 
 .location-now-card__icon {
-  width: clamp(76px, 12vw, 112px);
-  height: clamp(76px, 12vw, 112px);
+  width: clamp(64px, 10vw, 92px);
+  height: clamp(64px, 10vw, 92px);
   filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.18));
 }
 
 .location-now-card__temperature {
-  margin-top: 18px;
-  font-size: clamp(5.5rem, 18vw, 9rem);
-  font-weight: 950;
-  line-height: 0.78;
-  letter-spacing: -0.12em;
+  margin-top: 14px;
+  font-size: clamp(4.5rem, 14vw, 7rem);
+  font-weight: 680;
+  line-height: 0.82;
+  letter-spacing: -0.1em;
 }
 
 .location-now-card__facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
+  gap: 6px;
+  margin-top: 14px;
 }
 
 .location-now-card__facts span {
   display: inline-flex;
-  min-height: 32px;
+  min-height: 30px;
   align-items: center;
   border: 1px solid rgba(255, 253, 248, 0.2);
   border-radius: 999px;
   background: rgba(255, 253, 248, 0.12);
-  padding: 0 11px;
+  padding: 0 9px;
   color: rgba(255, 253, 248, 0.86);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 790;
 }
 
@@ -302,31 +303,91 @@
 }
 
 .location-day-row {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  min-height: 84px;
-  padding: 16px;
+  grid-template-columns: minmax(140px, 1fr) auto auto minmax(168px, auto) auto;
+  min-height: 92px;
+  padding: 16px 18px;
 }
 
 .location-day-row__date {
   display: grid;
-  gap: 5px;
+  gap: 2px;
+  min-width: 0;
 }
 
-.location-day-row .weather-icon {
-  width: 42px;
-  height: 42px;
-}
-
-.location-day-row__metrics span {
-  display: inline-flex;
-  min-width: 82px;
-  justify-content: center;
-  border: 1px solid rgba(222, 219, 208, 0.76);
-  border-radius: 999px;
-  background: rgba(255, 253, 248, 0.75);
-  padding: 7px 9px;
-  color: var(--ink-soft);
+.location-day-row__weekday {
+  color: var(--ink);
+  font-size: 1rem;
   font-weight: 850;
+  line-height: 1.05;
+}
+
+.location-day-row__date-label {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.location-day-row__temps {
+  display: grid;
+  gap: 3px;
+  min-width: 74px;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  font-weight: 780;
+  line-height: 1.1;
+}
+
+.location-day-row__max {
+  color: var(--heat);
+}
+
+.location-day-row__min {
+  color: var(--rain);
+}
+
+.location-day-row__icon {
+  width: 48px;
+  height: 48px;
+}
+
+.location-day-row__metrics {
+  grid-template-columns: repeat(2, minmax(74px, 1fr));
+  justify-items: stretch;
+  gap: 8px;
+  min-width: 168px;
+  white-space: normal;
+}
+
+.location-day-stat {
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+  border-left: 1px solid rgba(222, 219, 208, 0.76);
+  padding-left: 10px;
+}
+
+.location-day-stat small {
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 780;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.location-day-stat strong {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.05;
+}
+
+.location-day-row__toggle {
+  color: var(--rain);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .location-day .day-panel {
@@ -385,42 +446,137 @@
 @media (max-width: 700px) {
   .location-hero {
     min-height: 0;
-    border-radius: 24px;
+    gap: 14px;
+    border-radius: 20px;
+    padding: 16px;
   }
 
   .location-hero h1 {
     width: 100%;
     max-width: 100%;
-    font-size: clamp(2.25rem, 12.5vw, 4.15rem);
-    line-height: 0.96;
-    letter-spacing: -0.06em;
+    font-size: clamp(1.85rem, 10vw, 2.8rem);
+    font-weight: 650;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .location-now-card {
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .location-now-card__icon {
+    width: 58px;
+    height: 58px;
   }
 
   .location-now-card__temperature {
-    font-size: clamp(4.4rem, 24vw, 6.4rem);
+    font-size: clamp(3.9rem, 20vw, 5.3rem);
+    font-weight: 680;
   }
 
   .location-metrics {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: 2px 2px 10px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  .location-metric {
+    flex: 0 0 min(156px, calc(50vw - 28px));
+    min-height: 112px;
+    border-radius: 18px;
+    padding: 12px;
+    scroll-snap-align: start;
+  }
+
+  .location-metric__icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+  }
+
+  .location-metric strong {
+    margin-top: 5px;
+    font-size: 1.45rem;
+  }
+
+  .location-metric .meta {
+    margin-top: 6px;
+    font-size: 0.68rem;
+  }
+
+  .location-metric--compass {
+    min-width: 156px;
+  }
+
+  .location-metric--compass .compass {
+    width: 48px;
+    height: 48px;
+    margin-top: 4px;
+  }
+
+  .location-days {
+    border-radius: 16px;
+    box-shadow: none;
   }
 
   .location-day-row {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: minmax(54px, 1fr) auto 40px minmax(70px, auto) auto;
+    gap: 8px;
+    min-height: 86px;
+    padding: 14px 12px;
   }
 
-  .location-day-row__date {
-    grid-column: 1 / -1;
+  .location-day-row__weekday {
+    font-size: 0.94rem;
+  }
+
+  .location-day-row__date-label {
+    font-size: 0.69rem;
+  }
+
+  .location-day-row__temps {
+    min-width: 56px;
+    font-size: 0.76rem;
+  }
+
+  .location-day-row__icon {
+    width: 38px;
+    height: 38px;
   }
 
   .location-day-row__metrics {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    justify-items: stretch !important;
-    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    min-width: 70px;
   }
 
-  .location-day-row__metrics span {
-    min-width: 0;
+  .location-day-stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px;
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .location-day-stat small {
+    font-size: 0.53rem;
+  }
+
+  .location-day-stat strong {
+    margin-top: 0;
+    font-size: 0.72rem;
+  }
+
+  .location-day-row__toggle {
+    font-size: 0.59rem;
   }
 
   .location-day-hour {
